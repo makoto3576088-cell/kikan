@@ -208,7 +208,26 @@ dialog::backdrop{background:rgba(0,0,0,.4);backdrop-filter:blur(2px)}
 
 /* ---------- mobile ---------- */
 @media (max-width:759px){
-  .app{grid-template-columns:1fr}
+  html,body{overflow-x:hidden}
+  .app{grid-template-columns:1fr;min-width:0}
+  main{min-width:0}
+  .card,.kpi,.jbox{min-width:0}
+  .ph{flex-wrap:wrap;align-items:center}
+  .ph>div:last-child{display:flex;gap:8px;width:100%}
+  .ph>div:last-child .btn{flex:1}
+  .ph>.btn{margin-left:auto}
+  .btn{padding:9px 12px}
+  .txrow{grid-template-columns:56px 1fr auto;gap:8px}
+  .acc .n{font-size:13.5px}
+  .pcards{grid-template-columns:1fr}
+  .tools{gap:6px}
+  .karte{padding:14px}
+  .karte>div:first-child{flex-direction:column}
+  .karte>div:first-child>div:last-child{width:100%}
+  .karte>div:first-child>div:last-child .btn{flex:1}
+  .lesson{grid-template-columns:56px 1fr;gap:8px}
+  .mbody{padding:16px 16px 4px}
+  .mfoot{padding:10px 16px 14px}
   aside{display:none}
   main{padding:18px 16px calc(78px + env(safe-area-inset-bottom))}
   .grid,.cur{grid-template-columns:1fr}
@@ -219,7 +238,7 @@ dialog::backdrop{background:rgba(0,0,0,.4);backdrop-filter:blur(2px)}
   .stulist{flex-direction:row;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
   .stuitem{flex:none;min-width:150px}
   .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:20}
-  .tabbar button{flex:1;border:0;background:none;padding:9px 0 8px;font-size:10.5px;color:var(--fg3);display:flex;flex-direction:column;align-items:center;gap:3px}
+  .tabbar button{flex:1;min-width:0;border:0;background:none;padding:8px 0 7px;font-size:10px;color:var(--fg3);display:flex;flex-direction:column;align-items:center;gap:3px}
   .tabbar button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .tabbar button[aria-selected="true"]{color:var(--pri);font-weight:600}
   .g2{grid-template-columns:1fr}
