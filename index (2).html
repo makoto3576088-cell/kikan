@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>基幹</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #777; --line: #e6e6e6;
+    --soft: #f5f5f5; --accent: #1a1a1a; --done: #9a9a9a; --danger: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    font-size: 16px; line-height: 1.5; }
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 15px; font-weight: 600; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; display: flex; justify-content: space-between; align-items: center; }
+  h1 button { font-size: 12px; color: var(--muted); background: none; border: none; padding: 4px; }
+  .pane { display: none; } .pane.active { display: block; }
+  textarea, input[type=text], input[type=date], input[type=email], input[type=password], select {
+    width: 100%; font: inherit; color: inherit; background: var(--bg);
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px; outline: none;
+  }
+  textarea:focus, input:focus, select:focus { border-color: var(--fg); }
+  textarea { resize: none; min-height: 110px; }
+  .row { display: flex; gap: 8px; margin-top: 8px; }
+  .row > * { flex: 1; min-width: 0; }
+  button.primary { font: inherit; font-weight: 600; color: #fff; background: var(--accent);
+    border: none; border-radius: 10px; padding: 12px 16px; width: 100%; margin-top: 8px; }
+  button.primary:disabled { opacity: .35; }
+  .entry-box { margin-bottom: 24px; }
+  .daylabel { font-size: 13px; color: var(--muted); margin: 20px 0 6px; font-weight: 600; }
+  .item { border-top: 1px solid var(--line); padding: 12px 0; display: flex; gap: 10px; align-items: flex-start; }
+  .item:last-child { border-bottom: 1px solid var(--line); }
+  .item .body { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-word; }
+  .item .time { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .item .del { background: none; border: none; color: var(--muted); font-size: 18px; padding: 0 4px; line-height: 1; }
+  .status { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--fg); background: none; flex: none; margin-top: 2px; padding: 0; }
+  .status.doing { background: linear-gradient(90deg, var(--fg) 50%, transparent 50%); }
+  .status.done { background: var(--fg); }
+  .item.done .body { color: var(--done); text-decoration: line-through; }
+  .meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .meta .over { color: var(--danger); }
+  .proj { border-top: 1px solid var(--line); padding: 12px 0; }
+  .proj:last-child { border-bottom: 1px solid var(--line); }
+  .proj .head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .proj .name { flex: 1; font-weight: 600; }
+  .proj.closed .name { color: var(--done); }
+  .proj .count { font-size: 12px; color: var(--muted); }
+  .proj .detail { display: none; margin-top: 10px; }
+  .proj.open .detail { display: block; }
+  .proj label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  .proj .detail textarea { min-height: 70px; }
+  .proj .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .proj .actions button { font: inherit; font-size: 13px; background: var(--soft); border: none; border-radius: 8px; padding: 8px 12px; }
+  .proj .actions button.danger { color: var(--danger); }
+  .links a { display: block; font-size: 14px; word-break: break-all; }
+  .empty { color: var(--muted); font-size: 14px; padding: 24px 0; text-align: center; }
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg); border-top: 1px solid var(--line);
+    display: flex; padding-bottom: env(safe-area-inset-bottom); }
+  nav button { flex: 1; font: inherit; font-size: 13px; padding: 14px 0 12px; background: none; border: none; color: var(--muted); }
+  nav button.active { color: var(--fg); font-weight: 600; }
+  #login { max-width: 360px; margin: 80px auto; padding: 16px; }
+  #login input { margin-bottom: 8px; }
+  #login .err { color: var(--danger); font-size: 13px; min-height: 20px; margin-top: 8px; }
+  .hidden { display: none !important; }
+  .toast { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: var(--fg); color: #fff;
+    font-size: 13px; padding: 8px 14px; border-radius: 20px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>基幹システム</h1>
+  <input type="email" id="email" placeholder="メールアドレス" autocomplete="username">
+  <input type="password" id="password" placeholder="パスワード" autocomplete="current-password">
+  <button class="primary" id="loginBtn">ログイン</button>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<div id="app" class="hidden">
+<main>
+
+  <section class="pane active" id="pane-journal">
+    <h1>ジャーナル <button id="logoutBtn">ログアウト</button></h1>
+    <div class="entry-box">
+      <textarea id="jBody" placeholder="いま思っていること、あったこと"></textarea>
+      <button class="primary" id="jAdd" disabled>記録</button>
+    </div>
+    <div id="jList"></div>
+  </section>
+
+  <section class="pane" id="pane-tasks">
+    <h1>タスク</h1>
+    <div class="entry-box">
+      <input type="text" id="tTitle" placeholder="やること">
+      <div class="row">
+        <input type="date" id="tDue">
+        <select id="tProject"><option value="">プロジェクトなし</option></select>
+      </div>
+      <button class="primary" id="tAdd" disabled>追加</button>
+    </div>
+    <div id="tList"></div>
+  </section>
+
+  <section class="pane" id="pane-projects">
+    <h1>プロジェクト</h1>
+    <div class="entry-box">
+      <input type="text" id="pName" placeholder="プロジェクト名">
+      <button class="primary" id="pAdd" disabled>追加</button>
+    </div>
+    <div id="pList"></div>
+  </section>
+
+</main>
+<nav>
+  <button data-pane="journal" class="active">ジャーナル</button>
+  <button data-pane="tasks">タスク</button>
+  <button data-pane="projects">プロジェクト</button>
+</nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://btrtqihrngpiflkhuvnz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0cnRxaWhybmdwaWZsa2h1dm56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNTU2NjAsImV4cCI6MjEwNjkzMTY2MH0.JejRqzokbaUYDhy2e9brsGWldi1sZi2Xr7EjH7pPHH0';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+let projects = [], tasks = [], journal = [];
+const openProjects = new Set();
+
+// ---------- utilities ----------
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+function esc(s) { return (s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function todayStr() {
+  return new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Singapore' });
+}
+function fmtDate(d) {
+  if (!d) return '';
+  const [y, m, dd] = d.split('-').map(Number);
+  const dt = new Date(y, m - 1, dd);
+  const w = ['日','月','火','水','木','金','土'][dt.getDay()];
+  const t = todayStr();
+  if (d === t) return `今日 ${m}/${dd}(${w})`;
+  const nowY = Number(t.slice(0, 4));
+  return (y === nowY ? '' : `${y}/`) + `${m}/${dd}(${w})`;
+}
+function fmtTime(iso) {
+  return new Date(iso).toLocaleTimeString('ja-JP', { timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit' });
+}
+function fail(e) { console.error(e); toast('保存できませんでした'); }
+
+// ---------- auth ----------
+$('loginBtn').onclick = async () => {
+  $('loginErr').textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  if (error) $('loginErr').textContent = 'ログインできませんでした';
+};
+$('password').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+$('logoutBtn').onclick = () => sb.auth.signOut();
+
+sb.auth.onAuthStateChange((_event, session) => {
+  if (session) { $('login').classList.add('hidden'); $('app').classList.remove('hidden'); loadAll(); }
+  else { $('app').classList.add('hidden'); $('login').classList.remove('hidden'); }
+});
+
+// ---------- tabs ----------
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + b.dataset.pane));
+  window.scrollTo(0, 0);
+});
+
+// ---------- load ----------
+async function loadAll() {
+  const [p, t, j] = await Promise.all([
+    sb.from('projects').select('*').order('created_at'),
+    sb.from('tasks').select('*').order('created_at'),
+    sb.from('journal').select('*').order('created_at', { ascending: false }),
+  ]);
+  if (p.error || t.error || j.error) return fail(p.error || t.error || j.error);
+  projects = p.data; tasks = t.data; journal = j.data;
+  renderAll();
+}
+function renderAll() { renderJournal(); renderTasks(); renderProjects(); }
+
+// ---------- journal ----------
+$('jBody').addEventListener('input', () => $('jAdd').disabled = !$('jBody').value.trim());
+$('jAdd').onclick = async () => {
+  const body = $('jBody').value.trim(); if (!body) return;
+  $('jAdd').disabled = true;
+  const { data, error } = await sb.from('journal').insert({ body }).select().single();
+  if (error) { $('jAdd').disabled = false; return fail(error); }
+  journal.unshift(data); $('jBody').value = ''; renderJournal(); toast('記録しました');
+};
+async function delJournal(id) {
+  if (!confirm('この記録を削除しますか？')) return;
+  const { error } = await sb.from('journal').delete().eq('id', id);
+  if (error) return fail(error);
+  journal = journal.filter(x => x.id !== id); renderJournal();
+}
+function renderJournal() {
+  const el = $('jList');
+  if (!journal.length) { el.innerHTML = '<div class="empty">まだ記録がありません</div>'; return; }
+  let html = '', lastDay = null;
+  for (const e of journal) {
+    if (e.entry_date !== lastDay) { html += `<div class="daylabel">${fmtDate(e.entry_date)}</div>`; lastDay = e.entry_date; }
+    html += `<div class="item"><div class="body">${esc(e.body)}<div class="time">${fmtTime(e.created_at)}</div></div>
+      <button class="del" onclick="delJournal('${e.id}')">×</button></div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ---------- tasks ----------
+$('tTitle').addEventListener('input', () => $('tAdd').disabled = !$('tTitle').value.trim());
+$('tTitle').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('tAdd').disabled) $('tAdd').click(); });
+$('tAdd').onclick = async () => {
+  const title = $('tTitle').value.trim(); if (!title) return;
+  $('tAdd').disabled = true;
+  const rec = { title, due_date: $('tDue').value || null, project_id: $('tProject').value || null };
+  const { data, error } = await sb.from('tasks').insert(rec).select().single();
+  if (error) { $('tAdd').disabled = false; return fail(error); }
+  tasks.push(data); $('tTitle').value = ''; $('tDue').value = ''; $('tProject').value = '';
+  renderTasks(); renderProjects(); toast('追加しました');
+};
+async function cycleTask(id) {
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  const next = { todo: 'doing', doing: 'done', done: 'todo' }[t.status] || 'todo';
+  const patch = { status: next, done_at: next === 'done' ? new Date().toISOString() : null };
+  const { error } = await sb.from('tasks').update(patch).eq('id', id);
+  if (error) return fail(error);
+  Object.assign(t, patch); renderTasks(); renderProjects();
+}
+async function delTask(id) {
+  if (!confirm('このタスクを削除しますか？')) return;
+  const { error } = await sb.from('tasks').delete().eq('id', id);
+  if (error) return fail(error);
+  tasks = tasks.filter(x => x.id !== id); renderTasks(); renderProjects();
+}
+function taskRow(t) {
+  const p = projects.find(x => x.id === t.project_id);
+  const today = todayStr();
+  const over = t.due_date && t.status !== 'done' && t.due_date < today;
+  const meta = [];
+  if (t.due_date) meta.push(`<span class="${over ? 'over' : ''}">${fmtDate(t.due_date)}</span>`);
+  if (p) meta.push(`<span>${esc(p.name)}</span>`);
+  return `<div class="item ${t.status}">
+    <button class="status ${t.status}" onclick="cycleTask('${t.id}')" aria-label="状態を切り替え"></button>
+    <div class="body">${esc(t.title)}${meta.length ? `<div class="meta">${meta.join('')}</div>` : ''}</div>
+    <button class="del" onclick="delTask('${t.id}')">×</button></div>`;
+}
+function renderTasks() {
+  const sel = $('tProject');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">プロジェクトなし</option>' +
+    projects.filter(p => p.status === 'active').map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  sel.value = cur;
+
+  const byDue = (a, b) => (a.due_date || '9999') < (b.due_date || '9999') ? -1 : (a.due_date || '9999') > (b.due_date || '9999') ? 1 : 0;
+  const doing = tasks.filter(t => t.status === 'doing').sort(byDue);
+  const todo = tasks.filter(t => t.status === 'todo').sort(byDue);
+  const done = tasks.filter(t => t.status === 'done').sort((a, b) => (b.done_at || '') < (a.done_at || '') ? -1 : 1).slice(0, 20);
+  let html = '';
+  if (doing.length) html += `<div class="daylabel">進行中</div>` + doing.map(taskRow).join('');
+  if (todo.length) html += `<div class="daylabel">未着手</div>` + todo.map(taskRow).join('');
+  if (done.length) html += `<div class="daylabel">完了</div>` + done.map(taskRow).join('');
+  $('tList').innerHTML = html || '<div class="empty">タスクはありません</div>';
+}
+
+// ---------- projects ----------
+$('pName').addEventListener('input', () => $('pAdd').disabled = !$('pName').value.trim());
+$('pName').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('pAdd').disabled) $('pAdd').click(); });
+$('pAdd').onclick = async () => {
+  const name = $('pName').value.trim(); if (!name) return;
+  $('pAdd').disabled = true;
+  const { data, error } = await sb.from('projects').insert({ name }).select().single();
+  if (error) { $('pAdd').disabled = false; return fail(error); }
+  projects.push(data); $('pName').value = ''; renderProjects(); renderTasks(); toast('追加しました');
+};
+function toggleProject(id) {
+  openProjects.has(id) ? openProjects.delete(id) : openProjects.add(id);
+  renderProjects();
+}
+async function saveProject(id, field, value) {
+  const p = projects.find(x => x.id === id); if (!p || p[field] === value) return;
+  const patch = { [field]: value, updated_at: new Date().toISOString() };
+  const { error } = await sb.from('projects').update(patch).eq('id', id);
+  if (error) return fail(error);
+  Object.assign(p, patch); toast('保存しました');
+}
+async function toggleProjectStatus(id) {
+  const p = projects.find(x => x.id === id); if (!p) return;
+  await saveProject(id, 'status', p.status === 'active' ? 'closed' : 'active');
+  renderProjects(); renderTasks();
+}
+async function delProject(id) {
+  if (!confirm('このプロジェクトを削除しますか？(タスクは残ります)')) return;
+  const { error } = await sb.from('projects').delete().eq('id', id);
+  if (error) return fail(error);
+  projects = projects.filter(x => x.id !== id);
+  tasks.forEach(t => { if (t.project_id === id) t.project_id = null; });
+  renderProjects(); renderTasks();
+}
+function renderProjects() {
+  const el = $('pList');
+  if (!projects.length) { el.innerHTML = '<div class="empty">まだプロジェクトがありません</div>'; return; }
+  const sorted = [...projects].sort((a, b) => (a.status === b.status) ? 0 : (a.status === 'active' ? -1 : 1));
+  el.innerHTML = sorted.map(p => {
+    const open = tasks.filter(t => t.project_id === p.id && t.status !== 'done').length;
+    const links = (p.links || '').split('\n').map(s => s.trim()).filter(Boolean)
+      .map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`).join('');
+    return `<div class="proj ${p.status} ${openProjects.has(p.id) ? 'open' : ''}">
+      <div class="head" onclick="toggleProject('${p.id}')">
+        <span class="name">${esc(p.name)}</span>
+        <span class="count">${open ? `残り${open}` : ''}</span>
+      </div>
+      <div class="detail">
+        <label>メモ</label>
+        <textarea onblur="saveProject('${p.id}','memo',this.value)">${esc(p.memo)}</textarea>
+        <label>関連リンク(1行に1つ)</label>
+        <textarea onblur="saveProject('${p.id}','links',this.value)">${esc(p.links)}</textarea>
+        <div class="links">${links}</div>
+        <div class="actions">
+          <button onclick="toggleProjectStatus('${p.id}')">${p.status === 'active' ? '完了にする' : '再開する'}</button>
+          <button class="danger" onclick="delProject('${p.id}')">削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
