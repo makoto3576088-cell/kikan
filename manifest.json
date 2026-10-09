@@ -1,6 +1,6 @@
 {
-  "name": "基幹 — 個人基幹システム",
-  "short_name": "基幹",
+  "name": "kikan — 個人基幹システム",
+  "short_name": "kikan",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

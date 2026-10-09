@@ -13,7 +13,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <script>try{if(localStorage.getItem('kikan.theme')==='dark')document.documentElement.dataset.theme='dark';}catch(e){}</script>
 <style>
 :root{
@@ -53,6 +53,8 @@ button:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
 a{color:var(--pri);text-decoration:none}
 svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .hidden{display:none!important}
+.wm{font-family:Sora,Inter,sans-serif;font-weight:700;letter-spacing:-.03em}
+svg.lg{display:block;width:72%;height:72%;color:#fff}
 ::selection{background:var(--pri-soft)}
 
 /* ---------- loading bar ---------- */
@@ -63,8 +65,8 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stro
 
 /* ---------- login ---------- */
 #login{max-width:380px;margin:0 auto;padding:96px 20px}
-#login .mark{width:52px;height:52px;border-radius:14px;background:var(--pri);color:#fff;display:grid;place-items:center;font-weight:700;font-size:22px;margin-bottom:18px}
-#login h1{font-size:22px;font-weight:700;margin:0 0 4px}
+#login .mark{width:56px;height:56px;border-radius:15px;background:var(--pri);display:grid;place-items:center;margin-bottom:18px}
+#login h1{font-size:26px;margin:0 0 4px}
 #login p{color:var(--fg2);margin:0 0 22px;font-size:13.5px}
 #login input{margin-bottom:10px}
 #login .err{color:var(--danger);font-size:13px;min-height:20px;margin-top:8px}
@@ -83,8 +85,8 @@ svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stro
 .app{display:grid;grid-template-columns:224px 1fr;min-height:100%}
 aside{position:sticky;top:0;height:100vh;padding:20px 12px;border-right:1px solid var(--line);background:var(--surface2);display:flex;flex-direction:column;gap:2px}
 .logo{display:flex;align-items:center;gap:10px;padding:4px 10px 18px}
-.logo .mark{width:30px;height:30px;border-radius:9px;background:var(--pri);color:#fff;display:grid;place-items:center;font-weight:700}
-.logo b{font-size:15px}.logo small{display:block;color:var(--fg3);font-size:11px;font-weight:400;line-height:1.2}
+.logo .mark{width:32px;height:32px;border-radius:9px;background:var(--pri);display:grid;place-items:center;flex:none}
+.logo b{font-size:17px;line-height:1.1}.logo small{display:block;color:var(--fg3);font-size:11px;font-weight:400;line-height:1.2}
 .navbtn{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:9px 11px;border-radius:var(--r-sm);color:var(--fg2);font-weight:500;text-align:left}
 .navbtn:hover{background:var(--d100);color:var(--fg)}
 .navbtn[aria-selected="true"]{background:var(--pri-soft);color:var(--pri)}
@@ -327,7 +329,8 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   main{padding:0 16px calc(78px + env(safe-area-inset-bottom))}
   .mhead{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -16px 14px;padding:calc(8px + env(safe-area-inset-top)) 10px 8px 16px;border-bottom:1px solid var(--line)}
   .mhead .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
-  .mhead .brand .mark{width:26px;height:26px;border-radius:8px;background:var(--pri);color:#fff;display:grid;place-items:center;font-size:13px}
+  .mhead .brand .mark{width:26px;height:26px;border-radius:8px;background:var(--pri);display:grid;place-items:center}
+  .mhead .brand .wm{font-size:16px}
   .mhead .acts{display:flex;gap:2px}
   .grid,.cur{grid-template-columns:1fr}
   .kpis{grid-template-columns:repeat(3,1fr);gap:8px}
@@ -388,14 +391,15 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5 5 9.5a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.6 1.2 2.5 2.3 2.5C11.6 8 11 6 12 3z"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--bg)"/><circle cx="15" cy="12" r="2" fill="var(--bg)"/><circle cx="11" cy="18" r="2" fill="var(--bg)"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-logo" viewBox="-110 -110 220 220"><rect x="-83" y="-62" width="22" height="124" rx="11" fill="currentColor" stroke="none"/><path d="M-39 -50L3 0L-39 50M31 -50L73 0L31 50" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <div id="loadbar"><i></i></div>
 
 <div id="login">
-  <div class="mark">基</div>
-  <h1>基幹</h1>
-  <p>個人基幹システム</p>
+  <div class="mark"><svg class="lg"><use href="#i-logo"/></svg></div>
+  <h1 class="wm">kikan</h1>
+  <p>基幹 — 個人基幹システム</p>
   <input type="email" id="email" placeholder="メールアドレス" autocomplete="username" autofocus>
   <input type="password" id="password" placeholder="パスワード" autocomplete="current-password">
   <button class="btn block" id="loginBtn">ログイン</button>
@@ -415,7 +419,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 
 <div id="app" class="app hidden">
 <aside>
-  <div class="logo"><div class="mark">基</div><div><b>基幹</b><small>個人基幹システム</small></div></div>
+  <div class="logo"><div class="mark"><svg class="lg"><use href="#i-logo"/></svg></div><div><b class="wm">kikan</b><small>基幹 · 個人基幹システム</small></div></div>
   <button class="navbtn" data-tab="home" aria-selected="true"><svg class="i"><use href="#i-home"/></svg>ホーム<span class="k">1</span></button>
   <button class="navbtn" data-tab="tasks" aria-selected="false"><svg class="i"><use href="#i-task"/></svg>タスク<span class="badge" id="navBadge" hidden></span><span class="k">2</span></button>
   <button class="navbtn" data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>プロジェクト<span class="k">3</span></button>
@@ -433,7 +437,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 
 <main>
   <div class="mhead">
-    <div class="brand"><span class="mark">基</span>基幹</div>
+    <div class="brand"><span class="mark"><svg class="lg"><use href="#i-logo"/></svg></span><span class="wm">kikan</span></div>
     <div class="acts">
       <button class="iconbtn" data-act="refresh" aria-label="更新"><svg class="i"><use href="#i-refresh"/></svg></button>
       <button class="iconbtn" data-act="settings" aria-label="設定"><svg class="i"><use href="#i-gear"/></svg></button>
@@ -620,7 +624,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><button class="btn flat sm" data-act="refresh">更新</button></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>タスク: 明日 / 金曜 / 10/15 / 来週 / 30分 / 1時間 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ]</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">基幹 v3</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v3.1</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
