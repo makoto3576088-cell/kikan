@@ -317,6 +317,31 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 .setrow .l b{display:block;font-size:14px;font-weight:500}
 .setrow .l small{color:var(--fg3);font-size:12px;line-height:1.6}
 
+/* ---------- condition ---------- */
+.cond{display:flex;gap:22px;align-items:flex-start}
+.cond .today{flex:1 1 320px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.crow{display:flex;align-items:center;gap:8px}
+.crow .cl{width:36px;font-size:12px;color:var(--fg2);flex:none}
+.crow .seg{flex-wrap:wrap}
+.crow .seg button{padding:4px 10px;font-size:12.5px;min-height:30px}
+.cond .week{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:86px}
+.wk .d{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
+.wk .bar{width:100%;max-width:24px;background:var(--d100);border-radius:5px 5px 2px 2px;position:relative;min-height:3px;overflow:hidden}
+.wk .bar i{position:absolute;left:0;right:0;bottom:0;background:var(--pri);border-radius:5px 5px 0 0}
+.wk .cd{width:10px;height:10px;border-radius:50%;background:var(--d200);flex:none}
+.wk .ex{font-size:10px;color:var(--fg2);height:13px;line-height:13px}
+.wk .lbl{font-size:10.5px;color:var(--fg3)}
+.wk .d.today .lbl{color:var(--pri);font-weight:600}
+.cond .sum{font-size:12.5px;color:var(--fg2)}
+.cond .sum b{color:var(--fg);font-weight:600}
+.gate .cond{flex-direction:column;gap:8px;margin-top:12px}
+.hrow{display:grid;grid-template-columns:76px 1fr 1fr 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:center}
+.hrow:last-child{border:0}
+.hrow .d{color:var(--fg3);font-size:12.5px}
+.tag{background:none;border:0;color:var(--pri);padding:0;font:inherit;font-weight:500}
+.kpi.link{cursor:pointer}
+.kpi.link:hover{border-color:var(--d300)}
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--fg);color:var(--bg);font-size:13px;padding:9px 14px;border-radius:99px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:120;display:flex;align-items:center;gap:10px;max-width:calc(100% - 32px);white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
 .toast button{background:none;border:0;color:#8fc1ff;font-weight:600;padding:0;font-size:13px}
@@ -333,6 +358,9 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   .mhead .brand .wm{font-size:16px}
   .mhead .acts{display:flex;gap:2px}
   .grid,.cur{grid-template-columns:1fr}
+  .cond{flex-direction:column;gap:14px}
+  .crow .seg button{padding:4px 8px}
+  .hrow{grid-template-columns:64px 1fr 1fr 1fr;gap:6px}
   .kpis{grid-template-columns:repeat(3,1fr);gap:8px}
   .kpi{padding:10px 10px;flex-direction:column;align-items:flex-start;gap:6px}
   .kpi .v{font-size:22px}
@@ -406,12 +434,13 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="err" id="loginErr"></div>
 </div>
 
-<div id="gate" class="hidden">
+<div id="gate" class="hidden gate">
   <div class="gatebox">
     <div class="k">今日の一言</div>
     <h1>いま、どんな感じ？</h1>
     <p id="gDate"></p>
     <textarea id="gBody" placeholder="一言でいい。思っていること、あったこと、やりたいこと"></textarea>
+    <div class="cond" id="gCond"></div>
     <button class="btn block" id="gAdd" disabled>記録して始める</button>
     <button class="skip" id="gSkip">今日はスキップ</button>
   </div>
@@ -452,10 +481,11 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
       <div class="foot"><span class="muted" id="jHint"></span><button class="btn sm" id="jQuickAdd" disabled>記録</button></div>
     </div>
     <div class="kpis">
-      <div class="kpi"><div><div class="v" id="kToday">0</div><div class="l">今日やる</div></div></div>
-      <div class="kpi" id="kOverBox"><div><div class="v" id="kOver">0</div><div class="l">期限超過</div></div></div>
-      <div class="kpi"><svg class="ring" viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="20"/><circle class="fg" id="ringFg" cx="24" cy="24" r="20" transform="rotate(-90 24 24)" stroke-dasharray="0 126"/></svg><div><div class="v" id="kRate">–</div><div class="l">今週の達成</div></div></div>
+      <div class="kpi link" onclick="showTab('tasks')"><div><div class="v" id="kToday">0</div><div class="l">今日やる</div></div></div>
+      <div class="kpi link" id="kOverBox" onclick="showTab('tasks')"><div><div class="v" id="kOver">0</div><div class="l">期限超過</div></div></div>
+      <div class="kpi link" onclick="showTab('tasks')"><svg class="ring" viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="20"/><circle class="fg" id="ringFg" cx="24" cy="24" r="20" transform="rotate(-90 24 24)" stroke-dasharray="0 126"/></svg><div><div class="v" id="kRate">–</div><div class="l">今週の達成</div></div></div>
     </div>
+    <div class="card" style="margin-bottom:16px"><h2>コンディション <span class="n" id="hToday"></span><button class="linkbtn" id="hMore" style="margin-left:auto;font-size:12px">30日</button></h2><div class="cond" id="hCond"></div></div>
     <div class="grid">
       <div>
         <div class="card" style="margin-bottom:16px"><h2>今日やる <span class="n" id="todayN"></span><span class="r" id="todayEst"></span></h2><div class="list" id="todayTasks"></div></div>
@@ -503,7 +533,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <section class="page" id="tab-money">
     <div class="ph"><div><h1>資産</h1><div class="sub">SGDとJPYは換算せず別々に表示</div></div>
       <div class="acts"><button class="btn flat" id="addBal">残高を記録</button><button class="btn" id="addTx">収支を追加</button></div></div>
-    <div class="addrow"><input type="text" id="txQuick" placeholder="例: 昼食 12.5 ／ 本 1500円 ／ 給与 3800 収入" autocomplete="off" enterkeyhint="done"><button class="btn" id="txQuickBtn">追加</button></div>
+    <div class="addrow"><input type="text" id="txQuick" placeholder="例: 昼食 12.5 ／ 昨日 本 1500円" autocomplete="off" enterkeyhint="done"><button class="btn" id="txQuickBtn">追加</button></div>
     <div class="preview" id="txPreview"></div>
     <div class="cur" id="curCards"></div>
     <div class="grid" style="margin-top:16px">
@@ -617,14 +647,18 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 <form id="jEditForm" class="mbody" onsubmit="return false"><textarea name="body" required style="min-height:140px"></textarea></form>
 <div class="mfoot"><button class="btn danger" id="jEditDel">削除</button><div><button class="btn flat" data-close="jEditDlg">閉じる</button><button class="btn" id="jEditSave">保存</button></div></div></dialog>
 
+<dialog id="hDlg"><div class="dhead"><b>コンディション 30日</b><button class="iconbtn" data-close="hDlg"><svg class="i"><use href="#i-x"/></svg></button></div>
+<div class="mbody"><div class="muted" id="hInsight" style="margin-bottom:8px"></div><div id="hList"></div></div>
+<div class="mfoot"><span></span><div><button class="btn flat" data-close="hDlg">閉じる</button></div></div></dialog>
+
 <dialog id="setDlg"><div class="dhead"><b>設定</b><button class="iconbtn" data-close="setDlg"><svg class="i"><use href="#i-x"/></svg></button></div>
 <div class="mbody">
   <div class="setrow"><div class="l"><b>アカウント</b><small id="setEmail"></small></div><button class="btn flat sm" id="setLogout">ログアウト</button></div>
   <div class="setrow"><div class="l"><b>テーマ</b><small>画面の配色</small></div><div class="seg"><button id="thLight" aria-pressed="true">ライト</button><button id="thDark" aria-pressed="false">ダーク</button></div></div>
-  <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><button class="btn flat sm" data-act="refresh">更新</button></div>
-  <div class="setrow"><div class="l"><b>入力の書き方</b><small>タスク: 明日 / 金曜 / 10/15 / 来週 / 30分 / 1時間 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ]</small></div></div>
+  <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
+  <div class="setrow"><div class="l"><b>入力の書き方</b><small>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v3.1</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v3.2</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -674,7 +708,7 @@ function fail(e) { console.error(e); toast('保存できませんでした。通
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 /* ================= state ================= */
-let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {};
+let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [];
 let filter = { scope: 'all', done: false, project: '' }, stuFilter = 'active', selStu = null, projShowAll = false, moneyMonth = ym(TODAY), jQuery = '';
 let session = null, loaded = false, lastLoad = 0, loading = false;
 
@@ -721,6 +755,13 @@ document.addEventListener('keydown', e => {
   const map = { '1': 'home', '2': 'tasks', '3': 'projects', '4': 'students', '5': 'money', '6': 'journal' };
   if (map[e.key]) showTab(map[e.key]);
 });
+window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
+window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
+$('#setExport').onclick = () => {
+  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health };
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `kikan-backup-${TODAY}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+};
+function autogrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 320) + 'px'; }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && session && loaded && Date.now() - lastLoad > 30000) loadAll(true); });
 
 /* ================= load ================= */
@@ -730,10 +771,10 @@ async function loadAll(silent) {
   const q = (t, o) => sb.from(t).select('*').order(o || 'created_at');
   try {
     const r = await Promise.all([q('tasks'), q('projects'), sb.from('journal').select('*').order('created_at', { ascending: false }),
-      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle()]);
+      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date')]);
     const err = r.find(x => x.error); if (err) throw err.error;
     [tasks, projects, journal, students, lessons, accounts, balances, txs, recs] = r.slice(0, 9).map(x => x.data || []);
-    settings = r[9].data || {};
+    settings = r[9].data || {}; health = r[10].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
     if (first) { const t = ls.get('kikan.tab'); showTab(t && !needGate() ? t : 'home'); }
@@ -754,7 +795,7 @@ function streakDays() {
 }
 const needGate = () => !journalToday() && ls.get('kikan.skip') !== TODAY;
 function checkGate() {
-  if (needGate()) { const n = streakDays(); $('#gDate').textContent = `${fmtDate(TODAY, false)}${n ? ` · 連続 ${n} 日継続中` : ''}`; $('#gate').classList.remove('hidden'); setTimeout(() => $('#gBody').focus(), 50); }
+  if (needGate()) { const n = streakDays(); $('#gDate').textContent = `${fmtDate(TODAY, false)}${n ? ` · 連続 ${n} 日継続中` : ''}`; const cur = healthOf(TODAY); gatePending = cur ? Object.fromEntries(['sleep_h','condition','exercise'].filter(k => cur[k] != null).map(k => [k, cur[k]])) : {}; renderGateCond(); $('#gate').classList.remove('hidden'); setTimeout(() => $('#gBody').focus(), 50); }
   else $('#gate').classList.add('hidden');
 }
 $('#gSkip').onclick = () => { ls.set('kikan.skip', TODAY); $('#gate').classList.add('hidden'); renderHome(); };
@@ -763,10 +804,12 @@ async function addJournal(ta, btn) {
   btn.disabled = true;
   const { data, error } = await sb.from('journal').insert({ body }).select().single();
   if (error) { btn.disabled = false; return fail(error); }
-  journal.unshift(data); ta.value = ''; renderJournal(); renderHome(); $('#gate').classList.add('hidden'); toast('記録しました');
+  journal.unshift(data); ta.value = ''; ta.style.height = ''; renderJournal(); renderHome();
+  if (ta.id === 'gBody' && Object.keys(gatePending).length) { await saveHealth(TODAY, gatePending); gatePending = {}; }
+  $('#gate').classList.add('hidden'); toast('記録しました');
 }
 [['#jQuick','#jQuickAdd'],['#jBody','#jAdd'],['#gBody','#gAdd']].forEach(([t, b]) => {
-  $(t).addEventListener('input', () => $(b).disabled = !$(t).value.trim());
+  $(t).addEventListener('input', () => { $(b).disabled = !$(t).value.trim(); autogrow($(t)); });
   $(t).addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !$(b).disabled) $(b).click(); });
   $(b).onclick = () => addJournal($(t), $(b));
 });
@@ -782,7 +825,9 @@ function openJ(id) { editingJ = journal.find(x => x.id === id); if (!editingJ) r
 $('#jEditSave').onclick = async () => { const body = $('#jEditForm').elements.body.value.trim(); if (!body) return; const { error } = await sb.from('journal').update({ body }).eq('id', editingJ.id); if (error) return fail(error); editingJ.body = body; $('#jEditDlg').close(); renderJournal(); renderHome(); toast('保存しました'); };
 $('#jEditDel').onclick = () => { $('#jEditDlg').close(); delJournal(editingJ.id); };
 $('#jSearch').addEventListener('input', () => { jQuery = $('#jSearch').value.trim(); renderJournal(); });
-function jRow(e) { return `<div class="jl"><div class="body" onclick="openJ('${e.id}')">${esc(e.body)}<div class="time">${fmtTime(e.created_at)}</div></div><button class="rowbtn" onclick="openJ('${e.id}')">編集</button></div>`; }
+const jBody = (t) => esc(t).replace(/#([^\s#＃]+)/g, (m, g) => `<button type="button" class="tag" onclick="event.stopPropagation();jTag('${g.replace(/'/g, '')}')">#${g}</button>`);
+function jTag(t) { $('#jSearch').value = '#' + t; jQuery = '#' + t; showTab('journal'); renderJournal(); }
+function jRow(e) { return `<div class="jl"><div class="body" onclick="openJ('${e.id}')">${jBody(e.body)}<div class="time">${fmtTime(e.created_at)}</div></div><button class="rowbtn" onclick="openJ('${e.id}')">編集</button></div>`; }
 function renderJournal() {
   const n = streakDays();
   $('#jCount').textContent = `${journal.length} 件${n ? ` · 連続 ${n} 日` : ''}`;
@@ -814,9 +859,10 @@ function parseQuick(raw) {
   take(/(\d{1,2})[\/月](\d{1,2})日?/, m => { const y = +TODAY.slice(0, 4); let d = `${y}-${pad(m[1])}-${pad(m[2])}`; if (d < TODAY) d = `${y + 1}-${pad(m[1])}-${pad(m[2])}`; r.due_date = d; });
   take(/来週([月火水木金土日])曜?日?/, m => { r.due_date = addDays(addDays(MON, 7), (W.indexOf(m[1]) + 6) % 7); });
   take(/([月火水木金土日])曜日?/, m => { r.due_date = nextDow(W.indexOf(m[1])); });
-  take(/明後日/, () => { r.due_date = addDays(TODAY, 2); });
-  take(/明日/, () => { r.due_date = addDays(TODAY, 1); });
-  take(/今日/, () => { r.due_date = TODAY; });
+  take(/明後日中?に?/, () => { r.due_date = addDays(TODAY, 2); });
+  take(/明日中?に?/, () => { r.due_date = addDays(TODAY, 1); });
+  take(/今日中?に?/, () => { r.due_date = TODAY; });
+  take(/来月/, () => { r.due_date = monthEnd(addMonths(ym(TODAY), 1)); });
   take(/来週/, () => { r.start_date = addDays(MON, 7); r.due_date = addDays(SUN, 7); });
   take(/今週/, () => { r.due_date = SUN; });
   take(/(今月|月末)/, () => { r.due_date = monthEnd(ym(TODAY)); });
@@ -939,13 +985,15 @@ function weekStats() {
   return { plan, done, rate: plan.length ? Math.round(done.length / plan.length * 100) : null };
 }
 function renderHome() {
+  renderCond();
   const h = nowH();
   $('#greet').textContent = h < 11 ? 'おはようございます' : h < 18 ? 'こんにちは' : 'こんばんは';
   $('#todayLabel').textContent = fmtDate(TODAY, false);
   const n = streakDays(); $('#streak').hidden = !n; $('#streak span').textContent = `連続 ${n} 日`;
   const need = !journalToday();
   $('#jbox').classList.toggle('need', need);
-  $('#jHint').textContent = need ? '今日の記録がまだです。一言でも' : '今日は記録済み';
+  const jn = journal.filter(j => j.entry_date === TODAY).length;
+  $('#jHint').textContent = need ? '今日の記録がまだです。一言でも' : `今日 ${jn} 件`;
   const td = tasks.filter(t => t.status !== 'done' && ((t.start_date && t.start_date <= TODAY) || (t.due_date && t.due_date <= TODAY))).sort(taskSortDue);
   $('#kToday').textContent = td.length; $('#todayN').textContent = td.length;
   const est = td.reduce((s, t) => s + (t.est_min || 0), 0); $('#todayEst').textContent = est ? `合計 ${est >= 60 ? String(+(est / 60).toFixed(1)) + '時間' : est + '分'}` : '';
@@ -1095,6 +1143,51 @@ $('#lesDel').onclick = async () => {
   lessons = lessons.filter(l => l.id !== editingLes.id); $('#lesDlg').close(); renderStudents();
 };
 
+/* ================= condition (health) ================= */
+const SLEEPS = [[5, '≤5h'], [6, '6h'], [7, '7h'], [8, '8h'], [9, '9h+']];
+const CONDS = [[1, '悪い'], [2, '微妙'], [3, '普通'], [4, '良い'], [5, '最高']];
+const EXS = [['none', 'なし'], ['walk', '歩いた'], ['run', '走った'], ['gym', '筋トレ'], ['other', 'その他']];
+const CONDC = { 1: '#f31260', 2: '#f5a524', 3: '#a1a1aa', 4: '#45d483', 5: '#006FEE' };
+const EXM = { walk: '歩', run: '走', gym: '筋', other: '他' };
+let gatePending = {};
+const healthOf = (d) => health.find(h => h.date === d);
+function segRow(label, key, opts, cur, fn) {
+  return `<div class="crow"><span class="cl">${label}</span><div class="seg">${opts.map(([v, l]) => `<button type="button" aria-pressed="${String(cur) === String(v)}" onclick="${fn}('${key}', ${typeof v === 'number' ? v : `'${v}'`})">${l}</button>`).join('')}</div></div>`;
+}
+function condRows(cur, fn) { return segRow('睡眠', 'sleep_h', SLEEPS, cur.sleep_h, fn) + segRow('体調', 'condition', CONDS, cur.condition, fn) + segRow('運動', 'exercise', EXS, cur.exercise, fn); }
+function renderGateCond() { $('#gCond').innerHTML = condRows(gatePending, 'gateSet'); }
+function gateSet(k, v) { if (String(gatePending[k]) === String(v)) delete gatePending[k]; else gatePending[k] = v; renderGateCond(); }
+async function saveHealth(date, patch) {
+  const cur = healthOf(date);
+  const row = { user_id: session.user.id, date, ...patch, updated_at: new Date().toISOString() };
+  const { data, error } = await sb.from('health').upsert(row, { onConflict: 'user_id,date' }).select().single();
+  if (error) return fail(error);
+  if (cur) Object.assign(cur, data); else health.push(data);
+  renderHome();
+}
+function setCondToday(k, v) { const cur = healthOf(TODAY) || {}; saveHealth(TODAY, { [k]: String(cur[k]) === String(v) ? null : v }); }
+function renderCond() {
+  const cur = healthOf(TODAY) || {};
+  const days = []; for (let i = 6; i >= 0; i--) days.push(addDays(TODAY, -i));
+  const rows = days.map(d => healthOf(d) || { date: d });
+  const sl = rows.filter(r => r.sleep_h); const avgS = sl.length ? (sl.reduce((s, r) => s + +r.sleep_h, 0) / sl.length) : null;
+  const cd = rows.filter(r => r.condition); const avgC = cd.length ? (cd.reduce((s, r) => s + r.condition, 0) / cd.length) : null;
+  const exN = rows.filter(r => r.exercise && r.exercise !== 'none').length;
+  const filled = ['sleep_h', 'condition', 'exercise'].filter(k => cur[k] != null && cur[k] !== '').length;
+  $('#hToday').textContent = filled === 3 ? '今日は記録済み' : filled ? `今日 ${filled}/3` : '今日はまだ';
+  $('#hCond').innerHTML = `<div class="today">${condRows(cur, 'setCondToday')}</div>
+    <div class="week"><div class="wk">${rows.map(r => `<div class="d ${r.date === TODAY ? 'today' : ''}" title="${r.date}"><span class="ex">${r.exercise && r.exercise !== 'none' ? EXM[r.exercise] || '' : ''}</span><span class="cd" style="${r.condition ? 'background:' + CONDC[r.condition] : ''}"></span><div class="bar" style="height:${r.sleep_h ? Math.max(6, +r.sleep_h / 9 * 56) : 3}px"><i style="height:${r.sleep_h ? 100 : 0}%"></i></div><span class="lbl">${W[dow(r.date)]}</span></div>`).join('')}</div>
+    <div class="sum">7日間: 運動 <b>${exN}</b> 日 · 睡眠 <b>${avgS ? avgS.toFixed(1) + 'h' : '–'}</b> · 体調 <b>${avgC ? avgC.toFixed(1) : '–'}</b></div></div>`;
+}
+$('#hMore').onclick = () => {
+  const l = health.filter(h => h.date >= addDays(TODAY, -29)).sort((a, b) => a.date < b.date ? 1 : -1);
+  $('#hList').innerHTML = l.length ? `<div class="hrow" style="color:var(--fg3);font-size:12px"><span>日付</span><span>睡眠</span><span>体調</span><span>運動</span></div>` + l.map(h => `<div class="hrow"><span class="d">${h.date === TODAY ? '今日' : fmtShort(h.date) + ' ' + W[dow(h.date)]}</span><span>${h.sleep_h ? (SLEEPS.find(x => x[0] === +h.sleep_h) || [0, h.sleep_h + 'h'])[1] : '–'}</span><span style="${h.condition ? 'color:' + CONDC[h.condition] : ''}">${h.condition ? CONDS[h.condition - 1][1] : '–'}</span><span>${h.exercise ? (EXS.find(x => x[0] === h.exercise) || ['', h.exercise])[1] : '–'}</span></div>`).join('') : '<div class="empty">まだ記録がありません</div>';
+  const good = health.filter(h => h.sleep_h >= 7 && h.condition), bad = health.filter(h => h.sleep_h && h.sleep_h < 7 && h.condition);
+  const avg = (a) => (a.reduce((s, h) => s + h.condition, 0) / a.length).toFixed(1);
+  $('#hInsight').textContent = good.length >= 4 && bad.length >= 4 ? `睡眠7h以上の日の体調 ${avg(good)} ／ 7h未満の日 ${avg(bad)}（${health.length} 日分）` : `${health.length} 日分。睡眠と体調の関係は、それぞれ4日以上たまると出ます`;
+  $('#hDlg').showModal();
+};
+
 /* ================= money ================= */
 const monthsBack = (n, from) => { const out = []; for (let i = n - 1; i >= 0; i--) out.push(addMonths(from, -i)); return out; };
 const monthsBetween = (a, b) => { const [y1, m1] = a.split('-').map(Number), [y2, m2] = b.split('-').map(Number); return (y2 - y1) * 12 + (m2 - m1); };
@@ -1150,9 +1243,12 @@ $('#mPrev').onclick = () => { moneyMonth = addMonths(moneyMonth, -1); renderMone
 $('#mNext').onclick = () => { if (moneyMonth < ym(TODAY)) { moneyMonth = addMonths(moneyMonth, 1); renderMoney(); } };
 function parseTx(raw) {
   let s = ' ' + raw.trim() + ' ';
-  const r = { kind: 'out', account_id: null, amount: null, memo: '', category: '', cur: null, chips: [] };
+  const r = { kind: 'out', account_id: null, amount: null, memo: '', category: '', cur: null, chips: [], date: TODAY };
   const cut = (m) => { s = s.slice(0, m.index) + ' ' + s.slice(m.index + m[0].length); };
   let m = s.match(/#(\S+)/); if (m) { r.category = m[1]; cut(m); }
+  m = s.match(/一昨日/); if (m) { r.date = addDays(TODAY, -2); cut(m); }
+  m = s.match(/昨日/); if (m) { r.date = addDays(TODAY, -1); cut(m); }
+  m = s.match(/(\d{1,2})[\/月](\d{1,2})日?(?=\s)/); if (m) { const y = +TODAY.slice(0, 4); let d = `${y}-${pad(m[1])}-${pad(m[2])}`; if (d > TODAY) d = `${y - 1}-${pad(m[1])}-${pad(m[2])}`; r.date = d; cut(m); }
   if (/収入|給与|入金|給料/.test(s)) { r.kind = 'in'; s = s.replace(/\s(収入|入金)\s/g, ' '); }
   for (const a of accounts) { const i = s.indexOf(a.name); if (i >= 0) { r.account_id = a.id; s = s.slice(0, i) + ' ' + s.slice(i + a.name.length); break; } }
   const all = [...s.matchAll(/(S\$|\$)?(\d[\d,]*(?:\.\d+)?)\s*(円|ドル|SGD|JPY|S\$|\$)?/gi)];
@@ -1163,6 +1259,7 @@ function parseTx(raw) {
   if (r.amount !== null) r.chips.push([(r.kind === 'in' ? '+' : '−') + fmtAmt(r.amount, a?.currency || 'SGD'), r.kind === 'in' ? 'ok' : 'over']);
   if (a) r.chips.push([a.name, '']);
   if (r.category) r.chips.push([r.category, '']);
+  if (r.date !== TODAY) r.chips.push([fmtDate(r.date), 'pri']);
   return r;
 }
 function renderTxPreview() { const v = $('#txQuick').value; const el = $('#txPreview'); if (!v.trim()) { el.innerHTML = ''; return; } const r = parseTx(v); el.innerHTML = r.amount === null ? '<span class="chip ghost">金額を入れてください</span>' : `<span>${esc(r.memo || '（内容）')}</span>` + r.chips.map(([t, c]) => `<span class="chip ${c}">${esc(t)}</span>`).join(''); }
@@ -1171,9 +1268,9 @@ async function txQuickAdd() {
   const v = $('#txQuick').value.trim(); if (!v) return; const r = parseTx(v);
   if (r.amount === null || !r.memo) { toast('「内容 金額」の形で入れてください'); return; }
   $('#txQuick').value = ''; renderTxPreview();
-  const rec = { account_id: r.account_id, memo: r.memo, date: TODAY, amount: (r.kind === 'in' ? 1 : -1) * Math.abs(r.amount), category: r.category };
+  const rec = { account_id: r.account_id, memo: r.memo, date: r.date, amount: (r.kind === 'in' ? 1 : -1) * Math.abs(r.amount), category: r.category };
   const { data, error } = await sb.from('transactions').insert(rec).select().single(); if (error) { $('#txQuick').value = v; return fail(error); }
-  txs.push(data); moneyMonth = ym(TODAY); renderMoney(); toast('追加しました');
+  txs.push(data); moneyMonth = ym(r.date); renderMoney(); toast('追加しました');
 }
 $('#txQuickBtn').onclick = txQuickAdd;
 $('#txQuick').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); txQuickAdd(); } });
