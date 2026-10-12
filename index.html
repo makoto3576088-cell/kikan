@@ -208,6 +208,19 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 .bars .col i{position:absolute;left:0;right:0;bottom:0;background:var(--pri);border-radius:6px 6px 0 0}
 .bars .day{font-size:11px;color:var(--fg3)}
 .bars .b.today .day{color:var(--pri);font-weight:600}
+.wishbox{margin-bottom:18px;padding:14px 16px}
+.wishhead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.wishhead b{font-size:14px}
+.wishhead .rowbtn{margin-left:auto;opacity:1}
+.wishhead .rowbtn[aria-pressed="true"]{background:var(--d100);color:var(--fg)}
+.wishbox .addrow{margin-bottom:4px}
+.wl{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+.wl:last-child{border-bottom:0}
+.wl .t{flex:1;min-width:0;line-height:1.5;word-break:break-word}
+.wl.done .t{color:var(--fg3);text-decoration:line-through}
+.wl .d{font-size:11.5px;color:var(--fg3);margin-left:6px;text-decoration:none;display:inline-block}
+.wl:hover .rowbtn{opacity:1}
+.wl .acts{display:flex;gap:2px;flex:none}
 .jl{border-bottom:1px solid var(--line);padding:10px 0;display:flex;gap:10px;align-items:flex-start}
 .jl:last-child{border-bottom:0}
 .jl .body{flex:1;white-space:pre-wrap;word-break:break-word;min-width:0;line-height:1.65;cursor:pointer}
@@ -632,6 +645,11 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
     <div class="ph"><div><h1>ジャーナル</h1><div class="sub" id="jCount"></div></div></div>
     <div class="jbox"><textarea id="jBody" placeholder="いま思っていること、あったこと"></textarea>
       <div class="foot"><span class="muted" id="jHint2"></span><button class="btn sm" id="jAdd" disabled>記録</button></div></div>
+    <div class="card wishbox">
+      <div class="wishhead"><b>やりたいこと</b><span class="muted" id="wCount"></span><button class="rowbtn" id="wDoneTgl" aria-pressed="false">達成したもの</button></div>
+      <div class="addrow"><input type="text" id="wInput" placeholder="いつかやりたいこと、行きたい所、試したいこと" autocomplete="off"><button class="btn" id="wAdd">追加</button></div>
+      <div id="wList"></div>
+    </div>
     <div class="addrow"><input type="search" id="jSearch" placeholder="検索" autocomplete="off"></div>
     <div id="jList"></div>
   </section>
@@ -758,7 +776,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v3.6</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v3.7</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -808,7 +826,7 @@ function fail(e) { console.error(e); toast('保存できませんでした。通
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 /* ================= state ================= */
-let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [];
+let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [];
 let filter = { scope: 'all', done: false, project: '' }, stuFilter = 'active', selStu = null, projShowAll = false, moneyMonth = ym(TODAY), jQuery = '';
 let session = null, loaded = false, lastLoad = 0, loading = false;
 
@@ -858,7 +876,7 @@ document.addEventListener('keydown', e => {
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
 window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
 $('#setExport').onclick = () => {
-  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, tx_splits: splits, events };
+  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, tx_splits: splits, events };
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `kikan-backup-${TODAY}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };
 function autogrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 320) + 'px'; }
@@ -877,10 +895,10 @@ async function loadAll(silent) {
   const q = (t, o) => sb.from(t).select('*').order(o || 'created_at');
   try {
     const r = await Promise.all([q('tasks'), q('projects'), sb.from('journal').select('*').order('created_at', { ascending: false }),
-      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date')]);
+      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at')]);
     const err = r.find(x => x.error); if (err) throw err.error;
     [tasks, projects, journal, students, lessons, accounts, balances, txs, recs] = r.slice(0, 9).map(x => x.data || []);
-    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || [];
+    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
     if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && !needGate() ? t : 'home'); }
@@ -889,7 +907,7 @@ async function loadAll(silent) {
   } catch (e) { console.error(e); toast('読み込めませんでした。通信を確認してください'); }
   finally { loading = false; $('#loadbar').classList.remove('on'); }
 }
-function renderAll() { renderHome(); renderSchedule(); renderTasks(); renderProjects(); renderStudents(); renderMoney(); renderJournal(); if ($('#projDlg').open) renderProjTasks(); }
+function renderAll() { renderHome(); renderSchedule(); renderTasks(); renderProjects(); renderStudents(); renderMoney(); renderJournal(); renderWishes(); if ($('#projDlg').open) renderProjTasks(); }
 
 /* ================= journal ================= */
 const journalToday = () => journal.some(j => j.entry_date === TODAY);
@@ -950,6 +968,43 @@ function renderJournal() {
     html += jRow(e);
   }
   $('#jList').innerHTML = html;
+}
+
+/* ================= wishes ================= */
+let wShowDone = false;
+function renderWishes() {
+  const open = wishes.filter(w => !w.done_at), done = wishes.filter(w => w.done_at).sort((a, b) => a.done_at < b.done_at ? 1 : -1);
+  $('#wCount').textContent = `${open.length}${done.length ? ` · 達成 ${done.length}` : ''}`;
+  $('#wDoneTgl').hidden = !done.length; $('#wDoneTgl').setAttribute('aria-pressed', wShowDone);
+  const row = (w) => `<div class="wl ${w.done_at ? 'done' : ''}"><button class="chk" data-on="${w.done_at ? 1 : 0}" onclick="toggleWish('${w.id}')" aria-label="達成">${w.done_at ? chk : ''}</button><div class="t" onclick="editWish('${w.id}')">${esc(w.text)}${w.done_at ? `<span class="d">${fmtDate(w.done_at)}</span>` : ''}</div><div class="acts">${w.done_at ? '' : `<button class="rowbtn" onclick="wishToTask('${w.id}')">タスクに</button>`}<button class="rowbtn" onclick="delWish('${w.id}')">削除</button></div></div>`;
+  const list = wShowDone ? [...open, ...done] : open;
+  $('#wList').innerHTML = list.length ? list.map(row).join('') : '<div class="muted" style="font-size:13px;padding:6px 0">まだありません。思いついたら一行で。</div>';
+}
+async function addWish() {
+  const v = $('#wInput').value.trim(); if (!v) return; $('#wInput').value = '';
+  const { data, error } = await sb.from('wishes').insert({ text: v }).select().single(); if (error) { $('#wInput').value = v; return fail(error); }
+  wishes.push(data); renderWishes();
+}
+$('#wAdd').onclick = addWish; $('#wInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addWish(); } });
+$('#wDoneTgl').onclick = () => { wShowDone = !wShowDone; renderWishes(); };
+async function toggleWish(id) {
+  const w = wishes.find(x => x.id === id); const done_at = w.done_at ? null : TODAY; w.done_at = done_at; renderWishes();
+  const { error } = await sb.from('wishes').update({ done_at }).eq('id', id); if (error) return fail(error);
+  if (done_at) toast('達成！');
+}
+async function editWish(id) {
+  const w = wishes.find(x => x.id === id); const v = prompt('やりたいこと', w.text); if (v === null || !v.trim() || v.trim() === w.text) return;
+  w.text = v.trim(); renderWishes(); const { error } = await sb.from('wishes').update({ text: w.text }).eq('id', id); if (error) fail(error);
+}
+async function delWish(id) {
+  const w = wishes.find(x => x.id === id); wishes = wishes.filter(x => x.id !== id); renderWishes();
+  const { error } = await sb.from('wishes').delete().eq('id', id); if (error) { wishes.push(w); renderWishes(); return fail(error); }
+  toast('削除しました', { label: '元に戻す', fn: async () => { const { data, error } = await sb.from('wishes').insert(w).select().single(); if (error) return fail(error); wishes.push(data); renderWishes(); } });
+}
+async function wishToTask(id) {
+  const w = wishes.find(x => x.id === id);
+  const { data, error } = await sb.from('tasks').insert({ title: w.text, scope: 'private', status: 'todo' }).select().single(); if (error) return fail(error);
+  tasks.push(data); renderTasks(); renderHome(); toast('タスクに入れました', { label: 'タスクを見る', fn: () => showTab('tasks') });
 }
 
 /* ================= schedule ================= */
