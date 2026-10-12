@@ -296,6 +296,15 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 .cats .r .tr{flex:1;height:7px;background:var(--d100);border-radius:4px;overflow:hidden}
 .cats .r .tr i{display:block;height:100%;background:var(--pri);border-radius:4px}
 .cats .r .v{width:84px;text-align:right;color:var(--fg2);white-space:nowrap}
+.catchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.catchips button{border:0;background:var(--d100);color:var(--fg2);border-radius:99px;padding:4px 11px;font-size:12.5px}
+.catchips button[aria-pressed="true"]{background:var(--pri-soft);color:var(--pri);font-weight:600}
+.splits{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.sprow{display:grid;grid-template-columns:1fr 120px 36px;gap:8px;align-items:center}
+.sprow .iconbtn{width:36px;height:36px}
+.spfoot{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--fg2);margin-top:2px}
+.spfoot b.bad{color:var(--danger)}.spfoot b.ok{color:var(--ok-fg)}
+.txrow .m,.txrow .d{cursor:pointer}
 .balhist .r{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
 .balhist .r:last-child{border:0}
 
@@ -629,7 +638,11 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <input name="memo" type="text" class="big" required placeholder="内容（昼食、給与 など）">
   <div class="g2"><div><label>口座</label><select name="account_id" id="txAcc"></select></div><div><label>種別</label><select name="kind"><option value="out">支出</option><option value="in">収入</option></select></div></div>
   <div class="g2"><div><label>日付</label><input name="date" type="date" required></div><div><label>金額</label><input name="amount" type="number" step="0.01" min="0" required inputmode="decimal"></div></div>
-  <label>カテゴリ</label><input name="category" type="text" placeholder="食費、家賃 など" list="catOptions"><datalist id="catOptions"></datalist>
+  <div id="catSingle"><label>内訳（カテゴリ）</label><input name="category" type="text" placeholder="食費、日用品 など" list="catOptions"><div class="catchips" id="catChips"></div></div>
+  <datalist id="catOptions"></datalist>
+  <div id="catSplit" hidden><label>内訳を分ける</label><div class="splits" id="spRows"></div>
+    <div class="spfoot"><button type="button" class="linkbtn" id="spAdd">＋ 行を追加</button><span>残り <b id="spRest"></b></span></div></div>
+  <button type="button" class="linkbtn" id="spToggle" style="margin-top:12px">内訳を分ける（1回の買い物を複数の費目に）</button>
 </form><div class="mfoot"><button class="btn danger" id="txDel">削除</button><div><button class="btn flat" data-close="txDlg">閉じる</button><button class="btn" id="txSave">保存</button></div></div></dialog>
 
 <dialog id="recDlg"><div class="dhead"><b>固定の引き落とし・入金</b><button class="iconbtn" data-close="recDlg"><svg class="i"><use href="#i-x"/></svg></button></div>
@@ -709,7 +722,7 @@ function fail(e) { console.error(e); toast('保存できませんでした。通
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 /* ================= state ================= */
-let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [];
+let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [];
 let filter = { scope: 'all', done: false, project: '' }, stuFilter = 'active', selStu = null, projShowAll = false, moneyMonth = ym(TODAY), jQuery = '';
 let session = null, loaded = false, lastLoad = 0, loading = false;
 
@@ -759,7 +772,7 @@ document.addEventListener('keydown', e => {
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
 window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
 $('#setExport').onclick = () => {
-  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health };
+  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, tx_splits: splits };
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `kikan-backup-${TODAY}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };
 function autogrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 320) + 'px'; }
@@ -772,10 +785,10 @@ async function loadAll(silent) {
   const q = (t, o) => sb.from(t).select('*').order(o || 'created_at');
   try {
     const r = await Promise.all([q('tasks'), q('projects'), sb.from('journal').select('*').order('created_at', { ascending: false }),
-      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date')]);
+      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits')]);
     const err = r.find(x => x.error); if (err) throw err.error;
     [tasks, projects, journal, students, lessons, accounts, balances, txs, recs] = r.slice(0, 9).map(x => x.data || []);
-    settings = r[9].data || {}; health = r[10].data || [];
+    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
     if (first) { const t = ls.get('kikan.tab'); showTab(t && !needGate() ? t : 'home'); }
@@ -1231,12 +1244,14 @@ function renderMoney() {
       <div class="goal"><div class="gl"><span class="muted">目標 ${g ? fmtAmt(g, c) + '／月' : '未設定'}</span><span>${g ? `残し ${net < 0 ? '−' : ''}${fmtAmt(net, c)}（${Math.round(net / g * 100)}%）` : ''}</span></div>${g ? `<div class="tr"><i class="${net < 0 ? 'neg' : ''}" style="width:${pct}%"></i></div>` : ''}</div>
     </div>`; }).join('');
   const mt = txs.filter(t => ym(t.date) === mm).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (a.created_at < b.created_at ? 1 : -1));
-  $('#txList').innerHTML = mt.length ? mt.map(t => { const c = curOf(t.account_id); const a = accounts.find(x => x.id === t.account_id); return `<div class="txrow"><div class="d">${fmtShort(t.date)}</div><div class="m"><span>${esc(t.memo)}</span><small>${esc(a?.name || '')}${t.category ? ' · ' + esc(t.category) : ''}${t.source === 'gmail' ? ' · メール' : ''}</small></div><div class="r"><span class="a ${+t.amount > 0 ? 'in' : ''}">${+t.amount > 0 ? '+' : '−'}${fmtAmt(t.amount, c)}</span><button class="rowbtn" onclick="openTx('${t.id}')">編集</button></div></div>`; }).join('') : '<div class="empty"><b>記録はありません</b>上の欄に「昼食 12.5」のように書くと入ります</div>';
-  const cats = {}; mt.filter(t => +t.amount < 0).forEach(t => { const c = curOf(t.account_id); const k = t.category || '未分類'; (cats[c] = cats[c] || {})[k] = (cats[c][k] || 0) + Math.abs(+t.amount); });
+  $('#txList').innerHTML = mt.length ? mt.map(t => { const c = curOf(t.account_id); const a = accounts.find(x => x.id === t.account_id); const sp = splitsOf(t.id); const catTxt = sp.length ? sp.map(x => `${esc(x.category || '未分類')} ${fmtAmt(x.amount, c)}`).join(' / ') : (t.category ? esc(t.category) : (+t.amount < 0 ? '<span style="color:var(--warn-fg)">内訳なし</span>' : ''));
+    return `<div class="txrow"><div class="d" onclick="openTx('${t.id}')">${fmtShort(t.date)}</div><div class="m" onclick="openTx('${t.id}')"><span>${esc(t.memo)}</span><small>${esc(a?.name || '')}${catTxt ? ' · ' + catTxt : ''}${t.source === 'gmail' ? ' · メール' : ''}</small></div><div class="r"><span class="a ${+t.amount > 0 ? 'in' : ''}">${+t.amount > 0 ? '+' : '−'}${fmtAmt(t.amount, c)}</span><button class="rowbtn" onclick="openTx('${t.id}')">編集</button></div></div>`; }).join('') : '<div class="empty"><b>記録はありません</b>上の欄に「昼食 12.5」のように書くと入ります</div>';
+  const cats = {}; const addCat = (c, k, v) => { (cats[c] = cats[c] || {})[k] = (cats[c][k] || 0) + v; };
+  mt.filter(t => +t.amount < 0).forEach(t => { const c = curOf(t.account_id); const sp = splitsOf(t.id); if (sp.length) sp.forEach(x => addCat(c, x.category || '未分類', +x.amount)); else addCat(c, t.category || '未分類', Math.abs(+t.amount)); });
   const blocks = ['SGD', 'JPY'].map(c => { const ce = Object.entries(cats[c] || {}).sort((a, b) => b[1] - a[1]).slice(0, 6); if (ce.length < 2) return ''; const cmax = Math.max(1, ...ce.map(x => x[1]));
     return `<h2 style="margin:16px 0 8px">支出の内訳<span class="n">${c}</span></h2><div class="cats">` + ce.map(([n, v]) => `<div class="r"><span class="lab">${esc(n)}</span><span class="tr"><i style="width:${v / cmax * 100}%"></i></span><span class="v">${fmtAmt(v, c)}</span></div>`).join('') + '</div>'; });
   $('#catList').innerHTML = blocks.join('');
-  $('#catOptions').innerHTML = [...new Set(txs.map(t => t.category).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join('');
+  $('#catOptions').innerHTML = allCats().map(c => `<option value="${esc(c)}">`).join('');
   $('#recList').innerHTML = recs.length ? recs.map(r => { const c = curOf(r.account_id); const a = accounts.find(x => x.id === r.account_id); return `<div class="acc"><div class="n">${esc(r.name)}<small>${esc(a?.name || '')}${r.day ? ' · 毎月' + r.day + '日' : ' · 毎月'}</small></div><div class="v">${r.kind === 'in' ? '+' : '−'}${fmtAmt(r.amount, c)}</div><button class="rowbtn" onclick="openRec('${r.id}')">編集</button></div>`; }).join('') : '<div class="empty" style="padding:8px 0">なし</div>';
   $('#goalBox').innerHTML = `<div class="muted">SGD ${settings.goal_sgd ? fmtAmt(settings.goal_sgd, 'SGD') : '未設定'} ／ JPY ${settings.goal_jpy ? fmtAmt(settings.goal_jpy, 'JPY') : '未設定'}</div>`;
 }
@@ -1292,24 +1307,63 @@ $('#balSave').onclick = async () => {
   $('#balDlg').close(); renderMoney(); toast('記録しました');
 };
 let editingTx = null;
+const splitsOf = (id) => splits.filter(x => x.tx_id === id);
+const BASE_CATS = ['食費', '日用品', '交通費', '通信', '買い物', '娯楽', '家賃', '医療'];
+const allCats = () => { const used = {}; txs.forEach(t => { if (t.category) used[t.category] = (used[t.category] || 0) + 1; }); splits.forEach(x => { if (x.category) used[x.category] = (used[x.category] || 0) + 1; }); return [...new Set([...Object.keys(used).sort((a, b) => used[b] - used[a]), ...BASE_CATS])]; };
+let spDraft = null;
+function renderCatChips() { const cur = $('#txForm').elements.category.value.trim(); $('#catChips').innerHTML = allCats().slice(0, 10).map(c => `<button type="button" aria-pressed="${c === cur}" onclick="pickCat('${esc(c).replace(/'/g, '')}')">${esc(c)}</button>`).join(''); }
+function pickCat(c) { const el = $('#txForm').elements.category; el.value = el.value.trim() === c ? '' : c; renderCatChips(); }
+$('#txForm').elements.category.addEventListener('input', renderCatChips);
+function txCur() { return accounts.find(a => a.id === $('#txAcc').value)?.currency || 'SGD'; }
+function spTotal() { return Math.abs(+$('#txForm').elements.amount.value || 0); }
+function renderSplits() {
+  const on = !!spDraft; $('#catSplit').hidden = !on; $('#catSingle').hidden = on; $('#spToggle').textContent = on ? '内訳を分けない（1つの費目にまとめる）' : '内訳を分ける（1回の買い物を複数の費目に）';
+  if (!on) return;
+  $('#spRows').innerHTML = spDraft.map((r, i) => `<div class="sprow"><input type="text" list="catOptions" placeholder="費目" value="${esc(r.category)}" oninput="spDraft[${i}].category=this.value"><input type="number" step="0.01" min="0" inputmode="decimal" placeholder="金額" value="${r.amount === '' ? '' : r.amount}" oninput="spDraft[${i}].amount=this.value;spRestUpd()"><button type="button" class="iconbtn" aria-label="行を削除" onclick="spDraft.splice(${i},1);if(spDraft.length<1)spDraft=null;renderSplits()"><svg class="i"><use href="#i-x"/></svg></button></div>`).join('');
+  spRestUpd();
+}
+function spRestUpd() { if (!spDraft) return; const rest = Math.round((spTotal() - spDraft.reduce((s, r) => s + (+r.amount || 0), 0)) * 100) / 100; const el = $('#spRest'); el.textContent = (rest < 0 ? '−' : '') + fmtAmt(rest, txCur()); el.className = Math.abs(rest) < 0.005 ? 'ok' : 'bad'; }
+$('#spToggle').onclick = () => {
+  if (spDraft) { spDraft = null; } else { const cat = $('#txForm').elements.category.value.trim(); spDraft = [{ category: cat, amount: spTotal() || '' }, { category: '', amount: '' }]; }
+  renderSplits();
+};
+$('#spAdd').onclick = () => { const rest = Math.round((spTotal() - spDraft.reduce((s, r) => s + (+r.amount || 0), 0)) * 100) / 100; spDraft.push({ category: '', amount: rest > 0 ? rest : '' }); renderSplits(); };
+$('#txForm').elements.amount.addEventListener('input', spRestUpd);
+$('#txAcc').addEventListener('change', spRestUpd);
 function openTx(id) {
   editingTx = id ? txs.find(t => t.id === id) : null; const f = $('#txForm'); fillAcc($('#txAcc'), editingTx?.account_id);
   f.elements.memo.value = editingTx?.memo || ''; f.elements.kind.value = editingTx && +editingTx.amount > 0 ? 'in' : 'out';
   f.elements.date.value = editingTx?.date || (moneyMonth === ym(TODAY) ? TODAY : monthEnd(moneyMonth)); f.elements.amount.value = editingTx ? Math.abs(+editingTx.amount) : ''; f.elements.category.value = editingTx?.category || '';
+  const sp = editingTx ? splitsOf(editingTx.id) : []; spDraft = sp.length ? sp.map(x => ({ category: x.category, amount: +x.amount })) : null;
+  renderCatChips(); renderSplits();
   $('#txDel').hidden = !editingTx; $('#txDlg').showModal();
 }
 $('#addTx').onclick = () => openTx(null);
 $('#txSave').onclick = async () => {
   const f = $('#txForm'); if (!f.reportValidity()) return;
-  const rec = { account_id: f.elements.account_id.value, memo: f.elements.memo.value.trim(), date: f.elements.date.value, amount: (f.elements.kind.value === 'in' ? 1 : -1) * Math.abs(+f.elements.amount.value), category: f.elements.category.value.trim() };
-  if (editingTx) { const { error } = await sb.from('transactions').update(rec).eq('id', editingTx.id); if (error) return fail(error); Object.assign(editingTx, rec); }
-  else { const { data, error } = await sb.from('transactions').insert(rec).select().single(); if (error) return fail(error); txs.push(data); moneyMonth = ym(rec.date); }
+  let rows = spDraft ? spDraft.map(r => ({ category: (r.category || '').trim(), amount: Math.round((+r.amount || 0) * 100) / 100 })).filter(r => r.amount > 0) : null;
+  if (rows) {
+    const sum = Math.round(rows.reduce((s, r) => s + r.amount, 0) * 100) / 100;
+    if (Math.abs(sum - spTotal()) >= 0.005) { toast('内訳の合計を金額に合わせてください'); return; }
+    if (rows.length < 2) { f.elements.category.value = rows[0]?.category || f.elements.category.value; rows = null; }
+  }
+  const rec = { account_id: f.elements.account_id.value, memo: f.elements.memo.value.trim(), date: f.elements.date.value, amount: (f.elements.kind.value === 'in' ? 1 : -1) * Math.abs(+f.elements.amount.value), category: rows ? rows[0].category : f.elements.category.value.trim() };
+  let txId;
+  if (editingTx) { const { error } = await sb.from('transactions').update(rec).eq('id', editingTx.id); if (error) return fail(error); Object.assign(editingTx, rec); txId = editingTx.id; }
+  else { const { data, error } = await sb.from('transactions').insert(rec).select().single(); if (error) return fail(error); txs.push(data); moneyMonth = ym(rec.date); txId = data.id; }
+  const had = splitsOf(txId).length;
+  if (had || rows) {
+    const { error: e1 } = await sb.from('tx_splits').delete().eq('tx_id', txId); if (e1) return fail(e1);
+    splits = splits.filter(x => x.tx_id !== txId);
+    if (rows) { const { data, error } = await sb.from('tx_splits').insert(rows.map(r => ({ tx_id: txId, ...r }))).select(); if (error) return fail(error); splits.push(...data); }
+  }
   $('#txDlg').close(); renderMoney(); toast('保存しました');
 };
 $('#txDel').onclick = async () => {
-  const row = editingTx; $('#txDlg').close(); txs = txs.filter(t => t.id !== row.id); renderMoney();
-  const { error } = await sb.from('transactions').delete().eq('id', row.id); if (error) { txs.push(row); renderMoney(); return fail(error); }
-  toast('削除しました', { label: '元に戻す', fn: async () => { const { data, error } = await sb.from('transactions').insert(row).select().single(); if (error) return fail(error); txs.push(data); renderMoney(); } });
+  const row = editingTx, rowSp = splitsOf(row.id); $('#txDlg').close(); txs = txs.filter(t => t.id !== row.id); splits = splits.filter(x => x.tx_id !== row.id); renderMoney();
+  const { error } = await sb.from('transactions').delete().eq('id', row.id); if (error) { txs.push(row); splits.push(...rowSp); renderMoney(); return fail(error); }
+  toast('削除しました', { label: '元に戻す', fn: async () => { const { data, error } = await sb.from('transactions').insert(row).select().single(); if (error) return fail(error); txs.push(data);
+    if (rowSp.length) { const r = await sb.from('tx_splits').insert(rowSp.map(x => ({ tx_id: data.id, category: x.category, amount: x.amount }))).select(); if (!r.error) splits.push(...r.data); } renderMoney(); } });
 };
 let editingRec = null;
 function openRec(id) {
