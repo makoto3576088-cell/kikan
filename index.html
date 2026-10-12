@@ -365,11 +365,11 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 
 /* ---------- dialogs ---------- */
 dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100% - 24px));background:var(--surface);color:var(--fg);box-shadow:0 24px 70px rgba(0,0,0,.25);max-height:calc(100vh - 40px);flex-direction:column;overflow:hidden}
-dialog[open]{display:flex}
+dialog[open]{display:block}
 dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 .dhead{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 0 22px}
 .dhead b{font-size:15px}
-.mbody{padding:12px 22px 8px;overflow:auto;flex:1;min-height:0}
+.mbody{padding:12px 22px 8px;overflow:auto;max-height:calc(100vh - 40px - 130px);-webkit-overflow-scrolling:touch}
 .mbody label{display:block;font-size:12px;color:var(--fg2);margin:12px 0 4px;font-weight:500}
 .mbody .big{font-size:17px;font-weight:600;padding:10px 12px;margin-bottom:4px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -460,7 +460,8 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   dialog{width:100%;max-width:100%;margin:auto 0 0;border-radius:18px 18px 0 0;max-height:92vh;max-height:92dvh}
   dialog.kb{margin:0;top:var(--kb-top,0);bottom:auto;border-radius:0 0 18px 18px;max-height:var(--kb-h,92dvh)}
   .dhead{padding:14px 12px 0 18px}
-  .mbody{padding:10px 18px 6px}
+  .mbody{padding:10px 18px 6px;max-height:calc(92vh - 130px);max-height:calc(92dvh - 130px)}
+  dialog.kb .mbody{max-height:calc(var(--kb-h,92dvh) - 130px)}
   .mfoot{padding:10px 18px calc(14px + env(safe-area-inset-bottom))}
   .toast{top:auto;bottom:calc(74px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(8px)}
   .toast.show{transform:translateX(-50%)}
@@ -759,7 +760,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v3.4</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v3.5</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
