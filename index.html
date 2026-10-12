@@ -450,7 +450,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   .io .v{font-size:15px}
   .karte .top{margin-bottom:12px}
   .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:20}
-  .tabbar button{flex:1;min-width:0;border:0;background:none;padding:7px 0 6px;font-size:9.5px;color:var(--fg3);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+  .tabbar button{flex:1;min-width:0;border:0;background:none;padding:7px 0 6px;font-size:10.5px;color:var(--fg3);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
   .tabbar button svg{width:21px;height:21px}
   .tabbar button[aria-selected="true"]{color:var(--pri);font-weight:600}
   .tabbar button .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:16px;height:16px;border-radius:99px;background:var(--danger);color:#fff;font-size:10px;line-height:16px;padding:0 4px;font-weight:600}
@@ -523,9 +523,8 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <button class="navbtn" data-tab="sched" aria-selected="false"><svg class="i"><use href="#i-cal"/></svg>予定<span class="k">2</span></button>
   <button class="navbtn" data-tab="tasks" aria-selected="false"><svg class="i"><use href="#i-task"/></svg>タスク<span class="badge" id="navBadge" hidden></span><span class="k">3</span></button>
   <button class="navbtn" data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>プロジェクト<span class="k">4</span></button>
-  <button class="navbtn" data-tab="students" aria-selected="false"><svg class="i"><use href="#i-stu"/></svg>生徒<span class="k">5</span></button>
-  <button class="navbtn" data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産<span class="k">6</span></button>
-  <button class="navbtn" data-tab="journal" aria-selected="false"><svg class="i"><use href="#i-journal"/></svg>ジャーナル<span class="k">7</span></button>
+  <button class="navbtn" data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産<span class="k">5</span></button>
+  <button class="navbtn" data-tab="journal" aria-selected="false"><svg class="i"><use href="#i-journal"/></svg>ジャーナル<span class="k">6</span></button>
   <div class="spacer"></div>
   <div class="foot">
     <span class="who" id="whoami"></span>
@@ -644,7 +643,6 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <button data-tab="sched" aria-selected="false"><svg class="i"><use href="#i-cal"/></svg>予定</button>
   <button data-tab="tasks" aria-selected="false"><svg class="i"><use href="#i-task"/></svg>タスク<span class="badge" id="tabBadge" hidden></span></button>
   <button data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>PJ</button>
-  <button data-tab="students" aria-selected="false"><svg class="i"><use href="#i-stu"/></svg>生徒</button>
   <button data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産</button>
   <button data-tab="journal" aria-selected="false"><svg class="i"><use href="#i-journal"/></svg>記録</button>
 </nav>
@@ -760,7 +758,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v3.5</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v3.6</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -850,11 +848,11 @@ $$('[data-tab]').forEach(b => b.onclick = () => showTab(b.dataset.tab));
 $$('[data-close]').forEach(b => b.onclick = () => document.getElementById(b.dataset.close).close());
 $$('[data-act="refresh"]').forEach(b => b.onclick = () => loadAll(true));
 $$('[data-act="theme"]').forEach(b => b.onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
-$$('[data-act="settings"]').forEach(b => b.onclick = () => { $('#setStats').textContent = `タスク ${tasks.length} · プロジェクト ${projects.length} · 記録 ${journal.length} · 生徒 ${students.length}`; $('#setDlg').showModal(); });
+$$('[data-act="settings"]').forEach(b => b.onclick = () => { $('#setStats').textContent = `タスク ${tasks.length} · プロジェクト ${projects.length} · 記録 ${journal.length}`; $('#setDlg').showModal(); });
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const tag = document.activeElement?.tagName; if (['INPUT','TEXTAREA','SELECT'].includes(tag) || document.querySelector('dialog[open]')) return;
-  const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'students', '6': 'money', '7': 'journal' };
+  const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'money', '6': 'journal' };
   if (map[e.key]) showTab(map[e.key]);
 });
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
@@ -885,7 +883,7 @@ async function loadAll(silent) {
     settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
-    if (first) { const t = ls.get('kikan.tab'); showTab(t && !needGate() ? t : 'home'); }
+    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && !needGate() ? t : 'home'); }
     checkGate();
     if (silent && !first) toast('更新しました');
   } catch (e) { console.error(e); toast('読み込めませんでした。通信を確認してください'); }
