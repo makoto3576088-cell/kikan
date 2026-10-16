@@ -98,10 +98,11 @@ def main():
         sys.exit(f"講師タブに {TEACHER_NAME} が見つかりません")
 
     # --- 生徒: ID -> (氏名, 分)
-    students = {}
+    students, grades = {}, {}
     for r in rows_after_header(wb["生徒"], "生徒ID"):
         if r[0]:
             students[sid(r[0])] = (r[2] or r[1] or "", r[5])
+            grades[sid(r[0])] = r[4] or ""
 
     # --- 設定: (校舎, 講) -> {'前': (s,e), '後': (s,e)}
     bands = {}
@@ -157,12 +158,15 @@ def main():
             print(f"時間帯なし: {d} {campus} {ko} {half}", file=sys.stderr)
             continue
         start, end = band[half]
-        names, notes, is_absent = [], [], []
+        names, notes, is_absent, stu_meta = [], [], [], []
         for r in sorted(rs, key=lambda r: (r[5] or 0)):
             s_id = sid(r[7])
             name, mins = students.get(s_id, (None, None))
             if not name:
                 name = r[12] or r[8] or (r[9] if r[9] in ("体験", "追加", "面談") else "") or "（名前なし）"
+            stu_meta.append({"key": s_id if s_id in students else "name:" + name, "name": name,
+                             "grade": grades.get(s_id, ""), "min": int(mins) if mins else None,
+                             "kind": r[9] or "", "state": r[10] or "", "subj": str(r[16] or "")})
             lab = []
             if r[9] and r[9] != "通常":
                 lab.append(r[9])
@@ -191,6 +195,7 @@ def main():
             "title": "・".join(names),
             "location": campus,
             "memo": memo,
+            "meta": json.dumps({"students": stu_meta, "koma": ko, "half": half, "campus": campus}, ensure_ascii=False),
         })
 
     events.sort(key=lambda e: (e["date"], e["start"], e["title"]))
@@ -199,17 +204,17 @@ def main():
     uid = q(USER_ID)
     if events:
         vals = ",\n".join(
-            f"({q(e['ext_ref'])},{q(e['date'])},{q(e['start'])},{q(e['end'])},{q(e['title'])},{q(e['location'])},{q(e['memo'])})"
+            f"({q(e['ext_ref'])},{q(e['date'])},{q(e['start'])},{q(e['end'])},{q(e['title'])},{q(e['location'])},{q(e['memo'])},{q(e['meta'])})"
             for e in events
         )
-        sql = f"""with src(ext_ref, date, start_time, end_time, title, location, memo) as (values
+        sql = f"""with src(ext_ref, date, start_time, end_time, title, location, memo, meta) as (values
 {vals}
 ), up as (
-  insert into public.events (user_id, title, scope, date, all_day, start_time, end_time, location, memo, repeat, repeat_days, ext_ref)
-  select {uid}, title, 'work', date::date, false, start_time::time, end_time::time, location, memo, 'none', '{{}}', ext_ref from src
+  insert into public.events (user_id, title, scope, date, all_day, start_time, end_time, location, memo, repeat, repeat_days, ext_ref, meta)
+  select {uid}, title, 'work', date::date, false, start_time::time, end_time::time, location, memo, 'none', '{{}}', ext_ref, meta::jsonb from src
   on conflict (user_id, ext_ref) where ext_ref is not null do update set
     title = excluded.title, date = excluded.date, start_time = excluded.start_time, end_time = excluded.end_time,
-    location = excluded.location, memo = excluded.memo, updated_at = now()
+    location = excluded.location, memo = excluded.memo, meta = excluded.meta, updated_at = now()
   returning (xmax = 0) as inserted
 ), del as (
   delete from public.events
