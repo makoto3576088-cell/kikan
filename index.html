@@ -214,18 +214,6 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 .wishhead .rowbtn{margin-left:auto;opacity:1}
 .wishhead .rowbtn[aria-pressed="true"]{background:var(--d100);color:var(--fg)}
 .wishbox .addrow{margin-bottom:4px}
-.ctiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.ctile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;gap:10px;align-items:center;box-shadow:var(--shadow)}
-.ctile .ci{font-size:22px}.ctile .cv{font-weight:700;font-size:17px;letter-spacing:-.02em}.ctile .cl{font-size:11.5px;color:var(--fg3)}.ctile .cl .neg{color:var(--danger)}
-.ccard{margin-bottom:14px}.chd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-.ctemp{font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--pri)}.ctemp.cold{color:var(--danger)}
-.cstat{display:flex;gap:14px;font-size:13px;color:var(--fg2);margin:4px 0 8px;flex-wrap:wrap}
-.ccard .tr{height:7px;background:var(--d100);border-radius:4px;overflow:hidden}.ccard .tr i{display:block;height:100%;background:var(--ok);border-radius:4px}
-.cwarn{margin-top:10px;font-size:12.5px;line-height:1.6;background:var(--warn-soft);color:var(--warn-fg);border-radius:10px;padding:8px 10px}
-.cb{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}.cb .ci{font-size:22px;width:28px;text-align:center}.cb .cbt{flex:1;min-width:0;font-size:13.5px}.cb .cbt .muted{font-size:12px}
-.cb .btn{white-space:nowrap}
-.clist{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--fg2)}
-.clog{display:flex;gap:10px;font-size:13px;padding:5px 0;border-top:1px solid var(--line)}.clog .muted{flex:none;font-size:12px}
 .jback{padding:8px 0;border-bottom:1px solid var(--line)}.jback:last-child{border-bottom:0}.jback .body{white-space:pre-wrap;line-height:1.6;cursor:pointer;margin-top:2px}
 .wl{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
 .wl:last-child{border-bottom:0}
@@ -560,7 +548,6 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <button class="navbtn" data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>プロジェクト<span class="k">4</span></button>
   <button class="navbtn" data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産<span class="k">5</span></button>
   <button class="navbtn" data-tab="journal" aria-selected="false"><svg class="i"><use href="#i-journal"/></svg>ジャーナル<span class="k">6</span></button>
-  <button class="navbtn" data-tab="camp" aria-selected="false"><svg class="i"><use href="#i-flame"/></svg>キャンプ<span class="k">7</span></button>
   <div class="spacer"></div>
   <div class="foot">
     <span class="who" id="whoami"></span>
@@ -677,12 +664,6 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
     <div class="addrow"><input type="search" id="jSearch" placeholder="検索" autocomplete="off"></div>
     <div id="jList"></div>
   </section>
-
-  <!-- CAMP (game) -->
-  <section class="page" id="tab-camp">
-    <div class="ph"><div><h1>凍土キャンプ</h1><div class="sub">暇つぶし。タスクやジャーナルが物資になる</div></div></div>
-    <div id="camp"><div class="empty">読み込み中…</div></div>
-  </section>
 </main>
 </div>
 
@@ -693,7 +674,6 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <button data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>PJ</button>
   <button data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産</button>
   <button data-tab="journal" aria-selected="false"><svg class="i"><use href="#i-journal"/></svg>記録</button>
-  <button data-tab="camp" aria-selected="false"><svg class="i"><use href="#i-flame"/></svg>拠点</button>
 </nav>
 
 <!-- dialogs -->
@@ -813,7 +793,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.0</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.1</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -897,7 +877,7 @@ $('#tabbar').style.display = 'none';
 function showTab(t) {
   $$('.navbtn[data-tab],.tabbar [data-tab]').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
   $$('.page').forEach(p => p.dataset.on = p.id === 'tab-' + t ? '1' : '0');
-  ls.set('kikan.tab', t); window.scrollTo(0, 0); if (t === 'camp' && window.Game) Game.open();
+  ls.set('kikan.tab', t); window.scrollTo(0, 0);
 }
 $$('[data-tab]').forEach(b => b.onclick = () => showTab(b.dataset.tab));
 $$('[data-close]').forEach(b => b.onclick = () => document.getElementById(b.dataset.close).close());
@@ -907,7 +887,7 @@ $$('[data-act="settings"]').forEach(b => b.onclick = () => { $('#setStats').text
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const tag = document.activeElement?.tagName; if (['INPUT','TEXTAREA','SELECT'].includes(tag) || document.querySelector('dialog[open]')) return;
-  const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'money', '6': 'journal', '7': 'camp' };
+  const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'money', '6': 'journal' };
   if (map[e.key]) showTab(map[e.key]);
 });
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
@@ -948,13 +928,13 @@ async function loadAll(silent) {
     settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
-    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && !needGate() ? t : 'home'); }
+    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && t !== 'camp' && !needGate() ? t : 'home'); }
     checkGate();
     if (silent && !first) toast('更新しました');
   } catch (e) { console.error(e); toast('読み込めませんでした。通信を確認してください'); }
   finally { loading = false; $('#loadbar').classList.remove('on'); }
 }
-function renderAll() { renderHome(); renderSchedule(); renderTasks(); renderProjects(); renderStudents(); renderMoney(); renderJournal(); renderWishes(); if (window.Game && loaded) { const g = Game.sync(); if (g && g.length && !$('#tab-camp').dataset.on?.includes('1')) toast(`キャンプに物資が届いた（${g.length} 件）`); } if ($('#projDlg').open) renderProjTasks(); }
+function renderAll() { renderHome(); renderSchedule(); renderTasks(); renderProjects(); renderStudents(); renderMoney(); renderJournal(); renderWishes(); if ($('#projDlg').open) renderProjTasks(); }
 
 /* ================= journal ================= */
 const journalToday = () => journal.some(j => j.entry_date === TODAY);
@@ -1793,6 +1773,5 @@ $('#goalSave').onclick = async () => {
   settings = data; $('#goalDlg').close(); renderMoney(); toast('保存しました');
 };
 </script>
-<script src="game.js?v=40"></script>
 </body>
 </html>
