@@ -359,6 +359,7 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 .ev .syncd{font-size:10.5px;border:1px solid var(--line);border-radius:6px;padding:0 5px;color:var(--fg3)}
 .ev .rowbtn.ln{opacity:1;align-self:center;border:1px solid var(--line);border-radius:8px;font-size:11.5px;padding:3px 7px;flex:none}
 .ev .rowbtn.ln.on{color:var(--ok-fg);border-color:var(--ok-soft);background:var(--ok-soft)}
+.rpt{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}.rpt .rh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}.rpt .acts{display:flex;gap:6px}.rpt textarea{font-size:14px;line-height:1.7}
 .lns{padding:12px 0;border-bottom:1px solid var(--line)}.lns:last-child{border-bottom:0}
 .lnh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.lnh b{font-size:15px}.lnh .muted{font-size:12px}
 .lnprev{margin-top:10px;font-size:13px;line-height:1.6;background:var(--d100);border-radius:10px;padding:8px 10px;white-space:pre-wrap}
@@ -793,7 +794,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.1</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.2</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -1020,10 +1021,23 @@ function renderLn() {
       ${prev ? `<div class="lnprev"><div class="muted">前回 ${fmtDate(prev.date, false)}</div>${prev.body ? `<div>${esc(prev.body)}</div>` : ''}${prev.next_plan ? `<div><span class="muted">次回→</span> ${esc(prev.next_plan)}</div>` : ''}</div>` : '<div class="lnprev muted">前回の記録はありません</div>'}
       <label>今回やったこと</label><textarea data-k="body" rows="3" placeholder="${esc(prev?.next_plan ? '前回の予定: ' + prev.next_plan : '扱った単元、できたこと、つまずき')}">${esc(cur?.body || '')}</textarea>
       <label>次回やること</label><textarea data-k="next" rows="2" placeholder="次に出す教材、宿題の確認など">${esc(cur?.next_plan || '')}</textarea>
+      ${cur?.report ? `<div class="rpt"><div class="rh"><label style="margin:0">保護者への報告 <span class="chip ${cur.report_status === 'sent' ? 'ok' : 'pri'}">${cur.report_status === 'sent' ? '送信済み' : cur.report_status === 'edited' ? '手直し済み' : '下書き'}</span></label><div class="acts"><button type="button" class="btn sm flat" onclick="copyReport(${i})">コピー</button>${cur.report_status !== 'sent' ? `<button type="button" class="btn sm" onclick="markSent('${cur.id}')">送った</button>` : ''}</div></div><textarea data-k="report" rows="6">${esc(cur.report)}</textarea></div>` : (cur?.body ? `<div class="muted" style="font-size:12px;margin-top:8px">報告の下書きは 21:05 と 23:05 に自動で入ります（急ぎなら私に「報告文作って」）</div>` : '')}
       ${hist.length ? `<button type="button" class="linkbtn" style="margin-top:8px;font-size:12.5px" onclick="lnHistOpen.has('${st.key}') ? lnHistOpen.delete('${st.key}') : lnHistOpen.add('${st.key}'); renderLn()">これまでの記録 ${all.length - (cur ? 1 : 0)} 件${lnHistOpen.has(st.key) ? ' を閉じる' : ''}</button>` : ''}
       ${lnHistOpen.has(st.key) ? `<div class="lnhist">${hist.map(n => `<div class="r"><span class="muted">${fmtDate(n.date, false)}</span><div>${esc(n.body)}${n.next_plan ? `<div class="muted">次回→ ${esc(n.next_plan)}</div>` : ''}</div></div>`).join('')}</div>` : ''}
     </div>`; }).join('');
   $$('#lnBody textarea').forEach(t => t.addEventListener('input', () => autogrow(t)));
+}
+async function copyReport(i) {
+  const t = $(`#lnBody .lns[data-i="${i}"] textarea[data-k="report"]`); if (!t) return;
+  try { await navigator.clipboard.writeText(t.value); toast('コピーしました'); } catch (e) { t.focus(); t.select(); toast('長押しでコピーしてください'); }
+}
+async function markSent(id) {
+  const n = lessonNotes.find(x => x.id === id); if (!n) return;
+  const box = $$('#lnBody .lns').find(b => b.querySelector('textarea[data-k="report"]') && lnEvent.meta.students[+b.dataset.i].key === n.student_key);
+  const text = box ? box.querySelector('textarea[data-k="report"]').value.trim() : n.report;
+  const patch = { report: text, report_status: 'sent', report_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+  const { error } = await sb.from('lesson_notes').update(patch).eq('id', id); if (error) return fail(error);
+  Object.assign(n, patch); renderLn(); renderSchedule(); toast('送信済みにしました。この文面は次回以降の見本になります');
 }
 $('#lnSave').onclick = async () => {
   const e = lnEvent; const uid = session.user.id; let saved = 0;
@@ -1036,6 +1050,11 @@ $('#lnSave').onclick = async () => {
       if (m) Object.assign(m, data); else studentMemos.push(data); saved++;
     }
     const cur = notesOf(st.key).find(n => n.date === e.date);
+    const rt = box.querySelector('textarea[data-k="report"]');
+    if (cur && rt && rt.value.trim() !== (cur.report || '')) {
+      const patch = { report: rt.value.trim(), report_status: cur.report_status === 'sent' ? 'sent' : 'edited', updated_at: new Date().toISOString() };
+      const { error } = await sb.from('lesson_notes').update(patch).eq('id', cur.id); if (error) return fail(error); Object.assign(cur, patch); saved++;
+    }
     if ((cur?.body || '') !== body || (cur?.next_plan || '') !== next) {
       if (!body && !next && cur) { const { error } = await sb.from('lesson_notes').delete().eq('id', cur.id); if (error) return fail(error); lessonNotes = lessonNotes.filter(n => n.id !== cur.id); saved++; }
       else if (body || next) {
@@ -1171,7 +1190,8 @@ function evRow(e, now) {
   const past = isToday && !e.all_day && en && en <= now, cur = isToday && !e.all_day && st <= now && (!en || now < en);
   const sub = []; if (e.location) sub.push(esc(e.location)); if (e.repeat === 'weekly') sub.push(repLabel(e)); if (e.memo) sub.push(esc(e.memo.split('\n')[0])); if (e.ext_ref) sub.push('<span class="syncd">出席管理</span>');
   const hasStu = e.meta?.students?.length; const noted = hasStu && lessonNotes.some(x => x.event_ref === e.ext_ref && (x.body || x.next_plan));
-  return `<div class="ev ${past ? 'past' : ''} ${cur ? 'now' : ''}" onclick="openEv('${e.id}', '${selDay}')"><div class="evt">${e.all_day ? '終日' : st}${!e.all_day && en ? `<small>${en}</small>` : ''}</div><div class="evbar ${e.scope}"></div><div class="evb"><div class="title">${esc(e.title)}</div>${sub.length ? `<div class="sub">${sub.join('<span>·</span>')}</div>` : ''}</div>${hasStu ? `<button class="rowbtn ln ${noted ? 'on' : ''}" onclick="event.stopPropagation();openLn('${e.id}')">${noted ? 'ノート ✓' : 'ノート'}</button>` : ''}</div>`;
+  const rptDraft = hasStu && lessonNotes.some(x => x.event_ref === e.ext_ref && x.report && x.report_status !== 'sent');
+  return `<div class="ev ${past ? 'past' : ''} ${cur ? 'now' : ''}" onclick="openEv('${e.id}', '${selDay}')"><div class="evt">${e.all_day ? '終日' : st}${!e.all_day && en ? `<small>${en}</small>` : ''}</div><div class="evbar ${e.scope}"></div><div class="evb"><div class="title">${esc(e.title)}</div>${sub.length ? `<div class="sub">${sub.join('<span>·</span>')}</div>` : ''}</div>${hasStu ? `<button class="rowbtn ln ${noted ? 'on' : ''}" onclick="event.stopPropagation();openLn('${e.id}')">${rptDraft ? '報告 下書き' : noted ? 'ノート ✓' : 'ノート'}</button>` : ''}</div>`;
 }
 function pickDay(d) { selDay = d; if (sMonthOpen) { sMonth = ym(d); } renderSchedule(); }
 $('#sPrev').onclick = () => { if (sMonthOpen) { sMonth = addMonths(sMonth, -1); } else selDay = addDays(selDay, -7); renderSchedule(); };
