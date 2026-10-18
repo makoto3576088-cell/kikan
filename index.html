@@ -387,6 +387,41 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 .balhist .r{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
 .balhist .r:last-child{border:0}
 
+/* ---------- daily stats（今日の数字） ---------- */
+.dshead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dshead .seg button{padding:3px 10px;min-height:26px;font-size:12px}
+.dst{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dst label{display:block;font-size:11.5px;color:var(--fg2);margin:0 0 4px;font-weight:500;white-space:nowrap}
+.dst .u{position:relative}
+.dst .u input{text-align:right;padding-right:30px;font-size:16px;font-weight:600}
+.dst .u small{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11.5px;color:var(--fg3);pointer-events:none}
+.dsnote{display:flex;gap:8px;margin-top:8px}
+.dsnote input{flex:1;min-width:0}
+.dsw{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:92px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.dsw .d{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;min-width:0}
+.dsw .bb{width:100%;max-width:28px;display:flex;gap:2px;align-items:flex-end;flex:1}
+.dsw .bb i{flex:1;border-radius:3px 3px 1px 1px;min-height:2px;background:var(--d200)}
+.dsw .bb i.p{background:var(--d300)}.dsw .bb i.y{background:var(--warn)}.dsw .bb i.s{background:var(--pri)}
+.dsw .lbl{font-size:10.5px;color:var(--fg3)}
+.dsw .d.today .lbl{color:var(--pri);font-weight:600}
+.dssum{display:flex;gap:10px 14px;flex-wrap:wrap;font-size:12.5px;color:var(--fg2);margin-top:8px}
+.dssum b{color:var(--fg)}
+.dsleg{display:inline-flex;align-items:center;gap:5px}.dsleg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.dsleg i.p{background:var(--d300)}.dsleg i.y{background:var(--warn)}.dsleg i.s{background:var(--pri)}
+.jbox .jlab{display:block;font-size:11.5px;font-weight:600;color:var(--pri);margin:0 2px 2px}
+.group.over h2{color:var(--danger)}.group.over h2 .n{color:var(--danger)}
+.group.over .card{border-color:var(--danger-soft)}
+.group.donegrp h2{color:var(--fg3)}
+.pgh{font-size:12.5px;font-weight:600;color:var(--fg2);margin:6px 2px 10px;display:flex;align-items:center;gap:6px}
+.pgh .n{color:var(--fg3);font-weight:500}
+.pgh:not(:first-child){margin-top:4px}
+.pcards .pgh{grid-column:1/-1}
+.pcard .nxt .chip{margin-right:4px}
+.jtag{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--pri-soft);color:var(--pri);border-radius:99px;padding:0 10px;font:inherit;font-size:12.5px;font-weight:600;min-height:32px;white-space:nowrap}
+#jList.card{padding:4px 16px 8px}
+#jList.card .daylabel{margin-top:14px}#jList.card .daylabel:first-child{margin-top:10px}
+.hev .chip{margin-left:4px}
+
 /* ---------- dialogs ---------- */
 dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100% - 24px));background:var(--surface);color:var(--fg);box-shadow:0 24px 70px rgba(0,0,0,.25);max-height:calc(100vh - 40px);flex-direction:column;overflow:hidden}
 dialog[open]{display:block}
@@ -451,11 +486,21 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   .crow .seg button{padding:4px 8px}
   .hrow{grid-template-columns:64px 1fr 1fr 1fr;gap:6px}
   .kpis{grid-template-columns:repeat(3,1fr);gap:8px}
-  .kpi{padding:10px 10px;flex-direction:column;align-items:flex-start;gap:6px}
-  .kpi .v{font-size:22px}
-  .ring{width:40px;height:40px}
-  .ph{flex-wrap:wrap;align-items:center;margin-bottom:14px}
-  .ph h1{font-size:21px}
+  .kpi{padding:12px 12px 10px;flex-direction:column;align-items:flex-start;gap:4px;box-shadow:none}
+  .kpi .v{font-size:24px}
+  .ring{width:30px;height:30px}
+  .ph{flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .ph h1{font-size:22px}
+  .ph .sub{font-size:13px}
+  h2{font-size:12.5px}
+  .grid{gap:14px}
+  .group{margin-bottom:0}.group h2{margin:16px 2px 6px}.group:first-child h2{margin-top:0}
+  .group .card{padding:4px 14px}
+  .row{padding:11px 0}
+  .pcards{gap:12px}
+  .pcard{padding:14px 16px}
+  .dst .u input{padding:8px 26px 8px 8px}
+  .dsw{height:84px}
   .ph .acts{width:100%}
   .ph .acts .btn{flex:1}
   .greet h1{font-size:22px}
@@ -571,6 +616,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <section class="page" id="tab-home" data-on="1">
     <div class="greet"><div><h1 id="greet"></h1><div class="d" id="todayLabel"></div></div><span class="streak" id="streak" hidden><svg class="i"><use href="#i-flame"/></svg><span></span></span></div>
     <div class="jbox" id="jbox">
+      <label class="jlab" for="jQuick">今日の記録</label>
       <textarea id="jQuick" placeholder="いま思っていること、あったこと"></textarea>
       <div class="foot"><span class="muted" id="jHint"></span><button class="btn sm" id="jQuickAdd" disabled>記録</button></div>
     </div>
@@ -579,7 +625,6 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
       <div class="kpi link" id="kOverBox" onclick="showTab('tasks')"><div><div class="v" id="kOver">0</div><div class="l">期限超過</div></div></div>
       <div class="kpi link" onclick="showTab('tasks')"><svg class="ring" viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="20"/><circle class="fg" id="ringFg" cx="24" cy="24" r="20" transform="rotate(-90 24 24)" stroke-dasharray="0 126"/></svg><div><div class="v" id="kRate">–</div><div class="l">今週の達成</div></div></div>
     </div>
-    <div class="card" style="margin-bottom:16px"><h2>コンディション <span class="n" id="hToday"></span><button class="linkbtn" id="hMore" style="margin-left:auto;font-size:12px">30日</button></h2><div class="cond" id="hCond"></div></div>
     <div class="grid">
       <div>
         <div class="card" style="margin-bottom:16px"><h2>今日の予定 <span class="n" id="hEvN"></span><span class="r" id="hEvNext"></span><button class="linkbtn" data-tab="sched" style="font-size:12px">予定へ</button></h2><div id="hEvList"></div></div>
@@ -587,6 +632,8 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
         <div class="card"><h2>期限が近い</h2><div class="list" id="soonTasks"></div></div>
       </div>
       <div>
+        <div class="card" style="margin-bottom:16px"><h2>今日の数字 <span class="n" id="dsToday"></span><button class="linkbtn" id="dsMore" style="margin-left:auto;font-size:12px">30日</button></h2><div id="dsHome"></div></div>
+        <div class="card" style="margin-bottom:16px"><h2>コンディション <span class="n" id="hToday"></span><button class="linkbtn" id="hMore" style="margin-left:auto;font-size:12px">30日</button></h2><div class="cond" id="hCond"></div></div>
         <div class="card" style="margin-bottom:16px"><h2>今週の完了数 <span class="n" id="weekLabel"></span></h2><div class="bars" id="bars"></div></div>
         <div class="card"><h2>最近のジャーナル <button class="linkbtn" data-tab="journal" style="margin-left:auto;font-size:12px">すべて</button></h2><div id="jRecent"></div></div>
       </div>
@@ -602,6 +649,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
     <div class="mgrid hidden" id="mgrid"></div>
     <div class="wstrip" id="wstrip"></div>
     <div class="card"><div class="dayh"><b id="dayLabel"></b><span class="muted" id="dayCount"></span><button class="linkbtn" id="dayAdd" style="margin-left:auto;font-size:12.5px;white-space:nowrap">＋ 追加</button></div><div id="dayList"></div></div>
+    <div class="card" id="tmrwCard" style="margin-top:12px;padding:12px 16px" hidden><div class="dayh" style="margin-bottom:2px"><b style="font-size:14px" id="tmrwLabel"></b><span class="muted" id="tmrwSub"></span></div><div id="tmrwList"></div></div>
   </section>
 
   <!-- TASKS -->
@@ -643,7 +691,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
     <div class="preview" id="txPreview"></div>
     <div class="cur" id="curCards"></div>
     <div class="grid" style="margin-top:16px">
-      <div class="card"><h2>収支 <span class="monthnav"><button class="iconbtn" id="mPrev"><svg class="i"><use href="#i-l"/></svg></button><b id="txMonthLabel"></b><button class="iconbtn" id="mNext"><svg class="i"><use href="#i-r"/></svg></button></span></h2><div id="txList"></div><div id="catList"></div></div>
+      <div class="card"><h2>収支 <span class="monthnav"><button class="iconbtn" id="mPrev"><svg class="i"><use href="#i-l"/></svg></button><b id="txMonthLabel"></b><button class="iconbtn" id="mNext"><svg class="i"><use href="#i-r"/></svg></button></span></h2><div id="catList"></div><div id="txList"></div></div>
       <div>
         <div class="card" style="margin-bottom:16px"><h2>固定の引き落とし・入金</h2><div id="recList"></div><button class="linkbtn" id="addRec" style="margin-top:8px">＋ 追加</button></div>
         <div class="card"><h2>貯蓄目標（月に残す額）</h2><div id="goalBox"></div><button class="linkbtn" id="editGoal" style="margin-top:8px">目標を変更</button></div>
@@ -656,13 +704,14 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
     <div class="ph"><div><h1>ジャーナル</h1><div class="sub" id="jCount"></div></div></div>
     <div class="jbox"><textarea id="jBody" placeholder="いま思っていること、あったこと"></textarea>
       <div class="foot"><span class="muted" id="jHint2"></span><button class="btn sm" id="jAdd" disabled>記録</button></div></div>
+    <div class="card wishbox"><div class="wishhead"><b>今日の数字</b><span class="muted" id="dsToday2"></span><button class="rowbtn" id="dsMore2">30日</button></div><div id="dsJournal"></div></div>
     <div class="card wishbox">
       <div class="wishhead"><b>やりたいこと</b><span class="muted" id="wCount"></span><button class="rowbtn" id="wDoneTgl" aria-pressed="false">達成したもの</button></div>
       <div class="addrow"><input type="text" id="wInput" placeholder="いつかやりたいこと、行きたい所、試したいこと" autocomplete="off"><button class="btn" id="wAdd">追加</button></div>
       <div id="wList"></div>
     </div>
     <div id="jBack"></div>
-    <div class="addrow"><input type="search" id="jSearch" placeholder="検索" autocomplete="off"></div>
+    <div class="addrow"><input type="search" id="jSearch" placeholder="検索" autocomplete="off"><button type="button" class="jtag" id="jTagChip" hidden></button></div>
     <div id="jList"></div>
   </section>
 </main>
@@ -777,6 +826,9 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 </form>
 <div class="mfoot"><div><button class="btn danger" id="evDel">削除</button><button class="btn danger" id="evSkip" hidden>この回を外す</button><button class="btn flat" id="evNote" hidden>授業ノート</button></div><div><button class="btn flat" data-close="evDlg">閉じる</button><button class="btn" id="evSave">保存</button></div></div></dialog>
 
+<dialog id="dsDlg"><div class="dhead"><b>今日の数字 30日</b><button class="iconbtn" data-close="dsDlg"><svg class="i"><use href="#i-x"/></svg></button></div>
+<div class="mbody"><div class="muted" id="dsInsight" style="margin-bottom:8px"></div><div id="dsList"></div></div>
+<div class="mfoot"><div></div><div><button class="btn flat" data-close="dsDlg">閉じる</button></div></div></dialog>
 <dialog id="hDlg"><div class="dhead"><b>コンディション 30日</b><button class="iconbtn" data-close="hDlg"><svg class="i"><use href="#i-x"/></svg></button></div>
 <div class="mbody"><div class="muted" id="hInsight" style="margin-bottom:8px"></div><div id="hList"></div></div>
 <div class="mfoot"><span></span><div><button class="btn flat" data-close="hDlg">閉じる</button></div></div></dialog>
@@ -794,7 +846,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.2</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.3</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -844,7 +896,7 @@ function fail(e) { console.error(e); toast('保存できませんでした。通
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 /* ================= state ================= */
-let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [], studentMemos = [], lessonNotes = [];
+let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [], studentMemos = [], lessonNotes = [], stats = [];
 let filter = { scope: 'all', done: false, project: '' }, stuFilter = 'active', selStu = null, projShowAll = false, moneyMonth = ym(TODAY), jQuery = '';
 let session = null, loaded = false, lastLoad = 0, loading = false;
 
@@ -894,7 +946,7 @@ document.addEventListener('keydown', e => {
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
 window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
 $('#setExport').onclick = () => {
-  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, student_memos: studentMemos, lesson_notes: lessonNotes, tx_splits: splits, events };
+  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, student_memos: studentMemos, lesson_notes: lessonNotes, tx_splits: splits, events, daily_stats: stats };
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `kikan-backup-${TODAY}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };
 function ask({ title = '', msg = '', value = null, ok = 'OK', danger = false } = {}) {
@@ -923,10 +975,10 @@ async function loadAll(silent) {
   const q = (t, o) => sb.from(t).select('*').order(o || 'created_at');
   try {
     const r = await Promise.all([q('tasks'), q('projects'), sb.from('journal').select('*').order('created_at', { ascending: false }),
-      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at'), q('student_memos', 'updated_at'), q('lesson_notes', 'date')]);
+      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at'), q('student_memos', 'updated_at'), q('lesson_notes', 'date'), q('daily_stats', 'date')]);
     const err = r.find(x => x.error); if (err) throw err.error;
     [tasks, projects, journal, students, lessons, accounts, balances, txs, recs] = r.slice(0, 9).map(x => x.data || []);
-    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || [];
+    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || []; stats = r[16].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
     if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && t !== 'camp' && !needGate() ? t : 'home'); }
@@ -935,7 +987,7 @@ async function loadAll(silent) {
   } catch (e) { console.error(e); toast('読み込めませんでした。通信を確認してください'); }
   finally { loading = false; $('#loadbar').classList.remove('on'); }
 }
-function renderAll() { renderHome(); renderSchedule(); renderTasks(); renderProjects(); renderStudents(); renderMoney(); renderJournal(); renderWishes(); if ($('#projDlg').open) renderProjTasks(); }
+function renderAll() { renderHome(); renderSchedule(); renderTasks(); renderProjects(); renderStudents(); renderMoney(); renderJournal(); renderWishes(); renderStats(); if ($('#projDlg').open) renderProjTasks(); }
 
 /* ================= journal ================= */
 const journalToday = () => journal.some(j => j.entry_date === TODAY);
@@ -981,9 +1033,11 @@ const jBody = (t) => esc(t).replace(/#([^\s#＃]+)/g, (m, g) => `<button type="b
 function jTag(t) { $('#jSearch').value = '#' + t; jQuery = '#' + t; showTab('journal'); renderJournal(); }
 function jRow(e) { return `<div class="jl"><div class="body" onclick="openJ('${e.id}')">${jBody(e.body)}<div class="time">${fmtTime(e.created_at)}</div></div><button class="rowbtn" onclick="openJ('${e.id}')">編集</button></div>`; }
 function renderJournal() {
-  const n = streakDays();
-  $('#jCount').textContent = `${journal.length} 件${n ? ` · 連続 ${n} 日` : ''}`;
-  $('#jHint2').textContent = journalToday() ? '今日は記録済み' : '今日の記録がまだです';
+  const n = streakDays(); const mN = journal.filter(j => ym(j.entry_date) === ym(TODAY)).length;
+  $('#jCount').textContent = `今月 ${mN} 件 · 全 ${journal.length} 件${n ? ` · 連続 ${n} 日` : ''}`;
+  $('#jHint2').textContent = journalToday() ? '今日は記録済み · #タグ で後から絞り込めます' : '今日の記録がまだです';
+  const chip = $('#jTagChip'); chip.hidden = !jQuery.startsWith('#'); if (!chip.hidden) { chip.innerHTML = `${esc(jQuery)} <span aria-hidden="true">×</span>`; chip.setAttribute('aria-label', `${jQuery} の絞り込みを解除`); chip.onclick = () => { $('#jSearch').value = ''; jQuery = ''; renderJournal(); }; }
+  $('#jList').classList.remove('card');
   const backs = [[addDays(TODAY, -7), '1週間前'], [addMonths(ym(TODAY), -1) + TODAY.slice(7), '1か月前'], [(+TODAY.slice(0, 4) - 1) + TODAY.slice(4), '1年前']].map(([d, l]) => [d, l, journal.filter(j => j.entry_date === d)]).filter(x => x[2].length);
   $('#jBack').innerHTML = backs.length && !jQuery ? `<div class="card wishbox"><div class="wishhead"><b>あの日の記録</b></div>${backs.map(([d, l, es]) => `<div class="jback"><div class="muted" style="font-size:12px">${l} · ${fmtDate(d, false)}</div>${es.slice(0, 2).map(e => `<div class="body" onclick="openJ('${e.id}')">${esc(e.body.length > 120 ? e.body.slice(0, 120) + '…' : e.body)}</div>`).join('')}</div>`).join('')}</div>` : '';
   let list = journal; if (jQuery) list = journal.filter(e => e.body.toLowerCase().includes(jQuery.toLowerCase()));
@@ -997,7 +1051,7 @@ function renderJournal() {
     if (s !== '今日' && s !== '昨日' && e.entry_date !== lastDay) { html += `<div class="muted" style="margin:8px 0 2px;font-size:12px">${fmtDate(e.entry_date, false)}</div>`; lastDay = e.entry_date; }
     html += jRow(e);
   }
-  $('#jList').innerHTML = html;
+  $('#jList').innerHTML = html; $('#jList').classList.add('card');
 }
 
 /* ================= lesson notes ================= */
@@ -1181,14 +1235,21 @@ function renderSchedule() {
   $('#sSub').textContent = `今週 ${[0,1,2,3,4,5,6].reduce((s, i) => s + eventsOn(addDays(mon, i)).length, 0)} 件${upcoming ? ` · これから ${upcoming} 件` : ''}`;
   let html = '';
   if (allday.length) html += '<div class="evsec">終日</div>' + allday.map(e => evRow(e, now)).join('');
-  if (tk.length) html += '<div class="evsec">この日のタスク</div>' + tk.map(t => taskRow(t, { hideStart: true })).join('');
-  if (timed.length) html += (html ? '<div class="evsec">時間</div>' : '') + timed.map(e => evRow(e, now)).join('');
+  if (timed.length) html += (allday.length ? '<div class="evsec">時間</div>' : '') + timed.map(e => evRow(e, now)).join('');
+  if (tk.length) html += '<div class="evsec">期限・着手予定のタスク</div>' + tk.map(t => taskRow(t, { hideStart: true })).join('');
   $('#dayList').innerHTML = html || `<div class="empty"><b>予定はありません</b>上の欄に「${selDay === TODAY ? '15時 面談 1時間' : '15時 面談'}」のように書くと、この日に入ります</div>`;
+  const tm = addDays(TODAY, 1), tev = selDay === TODAY ? eventsOn(tm) : [];
+  $('#tmrwCard').hidden = !tev.length;
+  if (tev.length) {
+    const loc = tev.find(e => e.location)?.location; const ttk = tasksOn(tm).length;
+    $('#tmrwLabel').textContent = `明日 ${fmtDate(tm, false)}`; $('#tmrwSub').textContent = `${tev.length} 件${loc ? ' · ' + loc : ''}${ttk ? ` · タスク ${ttk}` : ''}`;
+    $('#tmrwList').innerHTML = tev.map(e => `<div class="hev" onclick="pickDay('${tm}')"><span class="t">${e.all_day ? '終日' : hm(e.start_time)}</span><span class="evbar ${e.scope}"></span><span class="n">${esc(e.title)}${e.memo ? ' <span class="chip ok">準備メモ</span>' : ''}</span></div>`).join('');
+  }
 }
 function evRow(e, now) {
   const st = hm(e.start_time), en = hm(e.end_time); const isToday = selDay === TODAY;
   const past = isToday && !e.all_day && en && en <= now, cur = isToday && !e.all_day && st <= now && (!en || now < en);
-  const sub = []; if (e.location) sub.push(esc(e.location)); if (e.repeat === 'weekly') sub.push(repLabel(e)); if (e.memo) sub.push(esc(e.memo.split('\n')[0])); if (e.ext_ref) sub.push('<span class="syncd">出席管理</span>');
+  const sub = []; if (e.location) sub.push(esc(e.location)); if (e.repeat === 'weekly') sub.push(repLabel(e)); if (e.ext_ref) sub.push('<span class="syncd">出席管理から同期</span>'); if (e.memo) sub.push(`<span class="chip ok" title="${esc(e.memo.split('\n')[0])}">準備メモあり</span>`);
   const hasStu = e.meta?.students?.length; const noted = hasStu && lessonNotes.some(x => x.event_ref === e.ext_ref && (x.body || x.next_plan));
   const rptDraft = hasStu && lessonNotes.some(x => x.event_ref === e.ext_ref && x.report && x.report_status !== 'sent');
   return `<div class="ev ${past ? 'past' : ''} ${cur ? 'now' : ''}" onclick="openEv('${e.id}', '${selDay}')"><div class="evt">${e.all_day ? '終日' : st}${!e.all_day && en ? `<small>${en}</small>` : ''}</div><div class="evbar ${e.scope}"></div><div class="evb"><div class="title">${esc(e.title)}</div>${sub.length ? `<div class="sub">${sub.join('<span>·</span>')}</div>` : ''}</div>${hasStu ? `<button class="rowbtn ln ${noted ? 'on' : ''}" onclick="event.stopPropagation();openLn('${e.id}')">${rptDraft ? '報告 下書き' : noted ? 'ノート ✓' : 'ノート'}</button>` : ''}</div>`;
@@ -1271,11 +1332,11 @@ function parseQuick(raw) {
 }
 function renderQuickPreview() {
   const v = $('#quickAdd').value; const el = $('#quickPreview');
-  if (!v.trim()) { el.innerHTML = ''; return; }
+  if (!v.trim()) { el.innerHTML = '<span>Enterで登録 ·「今日中」「来週」「30分」「#私用」を読み取ります</span>'; return; }
   const r = parseQuick(v);
   el.innerHTML = r.chips.length ? `<span>${esc(r.title || '（タスク名）')}</span>` + r.chips.map(([t, c]) => `<span class="chip ${c}">${esc(t)}</span>`).join('') : '';
 }
-$('#quickAdd').addEventListener('input', renderQuickPreview);
+$('#quickAdd').addEventListener('input', renderQuickPreview); renderQuickPreview();
 async function quickAdd() {
   const v = $('#quickAdd').value.trim(); if (!v) return;
   const r = parseQuick(v); if (!r.title) { toast('タスク名を入れてください'); return; }
@@ -1297,8 +1358,8 @@ function taskRow(t, opts = {}) {
   const over = t.due_date && t.due_date < TODAY && t.status !== 'done';
   const p = projects.find(x => x.id === t.project_id);
   const sub = [`<span class="dot ${t.scope === 'private' ? 'private' : 'work'}"></span>`];
-  if (t.status === 'doing') sub.push('<span class="chip doing">進行中</span>');
-  if (t.due_date) sub.push(over ? `<span class="chip over">期限超過 ${fmtDate(t.due_date)}</span>` : `<span>期限 ${fmtDate(t.due_date)}</span>`);
+  if (t.status === 'doing') sub.push('<span class="chip doing">着手中</span>');
+  if (t.due_date) sub.push(over ? `<span class="chip over">${fmtDate(t.due_date)}まで</span>` : `<span class="chip">${fmtDate(t.due_date)}</span>`);
   if (t.start_date && t.status !== 'done' && !opts.hideStart) sub.push(`<span>着手 ${fmtDate(t.start_date)}</span>`);
   if (t.est_min) sub.push(`<span>${t.est_min}分</span>`);
   if (p && !opts.hideProject) sub.push(`<span>${esc(p.name)}</span>`);
@@ -1367,14 +1428,14 @@ function renderTasks() {
   [$('#navBadge'), $('#tabBadge')].forEach(b => { b.hidden = !overN; b.textContent = overN; });
   const used = new Set(); const g = [];
   const pick = (name, fn) => { const x = open.filter(t => !used.has(t.id) && fn(t)); x.forEach(t => used.add(t.id)); g.push([name, x]); };
-  pick('進行中', t => t.status === 'doing');
+  pick('着手中', t => t.status === 'doing');
   pick('期限超過', t => t.due_date && t.due_date < TODAY);
   pick('今日', t => (t.start_date && t.start_date <= TODAY) || (t.due_date && t.due_date <= TODAY));
   pick('今週', t => (t.start_date && t.start_date <= SUN) || (t.due_date && t.due_date <= SUN));
   pick('あとで', t => t.start_date || t.due_date);
   pick('日付なし', () => true);
   if (filter.done) g.push(['完了', done.sort((a, b) => (a.done_at || '') < (b.done_at || '') ? 1 : -1).slice(0, 30)]);
-  const html = g.filter(([, x]) => x.length).map(([n, x]) => { const est = x.reduce((s, t) => s + (t.est_min || 0), 0); return `<div class="group"><h2>${n}<span class="n">${x.length}</span>${est ? `<span class="r">${est}分</span>` : ''}${n === '期限超過' && x.length > 1 ? `<button class="linkbtn" style="margin-left:auto;font-size:12px" onclick="snoozeAll()">すべて明日へ</button>` : ''}</h2><div class="card flat"><div class="list">${x.sort(taskSortDue).map(t => taskRow(t)).join('')}</div></div></div>`; }).join('');
+  const html = g.filter(([, x]) => x.length).map(([n, x]) => { const est = n === '完了' ? 0 : x.reduce((s, t) => s + (t.est_min || 0), 0); const dn = n === '完了' ? x.filter(t => dateOf(t.done_at) === TODAY).length : 0; return `<div class="group ${n === '期限超過' ? 'over' : n === '完了' ? 'donegrp' : ''}"><h2>${n}<span class="n">${n === '完了' && dn ? `今日 ${dn}` : x.length}</span>${est ? `<span class="r">計 ${est >= 60 ? Math.floor(est / 60) + '時間' + (est % 60 ? est % 60 + '分' : '') : est + '分'}</span>` : ''}${n === '期限超過' && x.length > 1 ? `<button class="linkbtn" style="margin-left:auto;font-size:12px" onclick="snoozeAll()">すべて明日へ</button>` : ''}</h2><div class="card ${n === '完了' ? 'flat' : ''}"><div class="list">${x.sort(taskSortDue).map(t => taskRow(t)).join('')}</div></div></div>`; }).join('');
   $('#taskGroups').innerHTML = html || '<div class="empty"><b>タスクはありません</b>上の欄に「明日までに○○」のように書くと期限つきで入ります</div>';
 }
 
@@ -1468,18 +1529,21 @@ function renderProjects() {
   const order = { active: 0, paused: 1, done: 2 };
   let l = projects.slice().sort((a, b) => (order[a.status] ?? 1) - (order[b.status] ?? 1) || (a.created_at < b.created_at ? 1 : -1));
   if (!projShowAll) l = l.filter(p => p.status === 'active');
-  const hidden = projects.length - l.length;
-  $('#projCount').textContent = `進行中 ${projects.filter(p => p.status === 'active').length} 件${hidden ? ` · 非表示 ${hidden}` : ''}`;
-  $('#projList').innerHTML = l.length ? l.map(p => {
+  const nA = projects.filter(p => p.status === 'active').length, nP = projects.filter(p => p.status === 'paused').length, nD = projects.filter(p => p.status === 'done').length;
+  $('#projCount').textContent = `進行中 ${nA}${nP ? ` · 保留 ${nP}` : ''}${nD ? ` · 完了 ${nD}` : ''}`;
+  const card = (p) => {
     const links = (p.links || '').split('\n').map(s => s.trim()).filter(Boolean);
     const all = tasks.filter(t => t.project_id === p.id), dn = all.filter(t => t.status === 'done').length;
+    const nx = all.filter(t => t.status !== 'done').sort(taskSortDue)[0];
     return `<div class="pcard ${p.status}" onclick="openProject('${p.id}')">
       <div class="h"><span class="dot ${p.scope === 'private' ? 'private' : 'work'}"></span><b>${esc(p.name)}</b><span class="chip ${p.status === 'active' ? 'pri' : ''}">${{ active: '進行中', paused: '保留', done: '完了' }[p.status] || ''}</span></div>
       <p>${esc(p.memo) || '<span class="muted">メモはまだありません</span>'}</p>
       ${all.length ? `<div class="prog"><span class="tr"><i style="width:${dn / all.length * 100}%"></i></span><span>${dn}/${all.length}</span></div>` : ''}
-      ${(() => { const nx = all.filter(t => t.status !== 'done').sort(taskSortDue)[0]; return nx ? `<div class="nxt"><span class="muted">次</span> ${esc(nx.title)}${nx.due_date ? `<span class="muted"> · ${fmtDate(nx.due_date)}</span>` : ''}</div>` : ''; })()}
+      ${nx ? `<div class="nxt"><span class="chip">次</span>${esc(nx.title)}${nx.est_min ? `<span class="muted">（${nx.est_min}分）</span>` : ''}${nx.due_date ? `<span class="muted"> · ${fmtDate(nx.due_date)}</span>` : ''}</div>` : ''}
       ${links.length ? `<div class="links">${links.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(u.replace(/^https?:\/\//, '').slice(0, 32))}</a>`).join('')}</div>` : ''}
-    </div>`; }).join('') : '<div class="empty"><b>プロジェクトはありません</b>上の欄から追加できます</div>';
+    </div>`; };
+  const groups = [['仕事', l.filter(p => p.status === 'active' && p.scope !== 'private')], ['私用', l.filter(p => p.status === 'active' && p.scope === 'private')], ['保留・完了', l.filter(p => p.status !== 'active')]].filter(([, x]) => x.length);
+  $('#projList').innerHTML = l.length ? groups.map(([n, x]) => `<div class="pgh">${n}<span class="n">${x.length}</span></div>` + x.map(card).join('')).join('') : '<div class="empty"><b>プロジェクトはありません</b>上の欄から追加できます</div>';
 }
 
 /* ================= students ================= */
@@ -1598,8 +1662,72 @@ $('#hMore').onclick = () => {
   $('#hDlg').showModal();
 };
 
+/* ================= daily stats（今日の数字） ================= */
+let dsDay = TODAY, dsDraft = {};
+const DSK = ['phone_min', 'youtube_min', 'study_min'];
+const statOf = (d) => stats.find(s => s.date === d);
+const fmtMin = (m) => m == null ? '–' : m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? pad(m % 60) : ''}` : `${m}分`;
+function parseMin(v) {
+  v = String(v ?? '').trim().replace(/[０-９．：]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)); if (!v) return null;
+  let m = v.match(/^(\d+(?:\.\d+)?)\s*(?:h|時間)\s*(\d+)?\s*(?:m|分)?$/i); if (m) return Math.round(+m[1] * 60 + (+m[2] || 0));
+  m = v.match(/^(\d+):(\d{1,2})$/); if (m) return +m[1] * 60 + +m[2];
+  m = v.match(/^(\d+(?:\.\d+)?)\s*(?:m|分)?$/i); if (m) return Math.round(+m[1]);
+  return null;
+}
+function dsIn(k, v) { dsDraft[k] = v; $$(`[data-k="${k}"]`).forEach(i => { if (i.value !== v) i.value = v; }); }
+function dsForm(box) {
+  const cur = statOf(dsDay) || {}; const val = (k) => k in dsDraft ? dsDraft[k] : (cur[k] ?? '');
+  const f = (k, label) => `<div><label for="${box}-${k}">${label}</label><div class="u"><input id="${box}-${k}" type="text" inputmode="numeric" autocomplete="off" data-k="${k}" value="${esc(val(k))}" placeholder="0" oninput="dsIn('${k}', this.value)"><small>分</small></div></div>`;
+  const yest = addDays(TODAY, -1);
+  return `<div class="dshead"><div class="seg"><button type="button" aria-pressed="${dsDay === TODAY}" onclick="dsPick('${TODAY}')">今日</button><button type="button" aria-pressed="${dsDay === yest}" onclick="dsPick('${yest}')">昨日</button></div><span class="muted" style="font-size:12px">${fmtDate(dsDay, false)}${cur.id ? ' · 記録済み' : (dsDay === TODAY && !statOf(yest) ? ' · 昨日の分も未入力' : '')}</span></div>
+    <div class="dst">${f('phone_min', 'スマホ合計')}${f('youtube_min', 'うちYouTube')}${f('study_min', '勉強')}</div>
+    <div class="dsnote"><input type="text" data-k="note" value="${esc(val('note'))}" placeholder="何を勉強したか、ひと言" autocomplete="off" oninput="dsIn('note', this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();dsSave('${box}')}"><button type="button" class="btn" onclick="dsSave('${box}')">保存</button></div>`;
+}
+function dsWeek() {
+  const days = []; for (let i = 6; i >= 0; i--) days.push(addDays(TODAY, -i));
+  const rows = days.map(d => statOf(d) || { date: d });
+  const mx = Math.max(60, ...rows.flatMap(r => [r.phone_min || 0, r.study_min || 0]));
+  const h = (v) => v ? Math.max(3, v / mx * 56) : 2;
+  const avg = (k) => { const l = rows.filter(r => r[k] != null); return l.length ? Math.round(l.reduce((s, r) => s + r[k], 0) / l.length) : null; };
+  return `<div class="dsw">${rows.map(r => `<div class="d ${r.date === TODAY ? 'today' : ''}" title="${r.date}：スマホ ${fmtMin(r.phone_min)} / YouTube ${fmtMin(r.youtube_min)} / 勉強 ${fmtMin(r.study_min)}"><div class="bb"><i class="p" style="height:${h(r.phone_min)}px"></i><i class="y" style="height:${h(r.youtube_min)}px"></i><i class="s" style="height:${h(r.study_min)}px"></i></div><span class="lbl">${W[dow(r.date)]}</span></div>`).join('')}</div>
+    <div class="dssum"><span class="dsleg"><i class="p"></i>スマホ <b>${fmtMin(avg('phone_min'))}</b></span><span class="dsleg"><i class="y"></i>YouTube <b>${fmtMin(avg('youtube_min'))}</b></span><span class="dsleg"><i class="s"></i>勉強 <b>${fmtMin(avg('study_min'))}</b></span><span class="muted">7日平均</span></div>`;
+}
+function renderStats() {
+  const cur = statOf(TODAY); const filled = cur ? DSK.filter(k => cur[k] != null).length : 0;
+  const lab = filled === 3 ? '今日は記録済み' : filled ? `今日 ${filled}/3` : '今日はまだ';
+  $('#dsToday').textContent = lab; $('#dsToday2').textContent = lab;
+  const wk = dsWeek();
+  $('#dsHome').innerHTML = dsForm('dsHome') + wk; $('#dsJournal').innerHTML = dsForm('dsJournal') + wk;
+}
+function dsPick(d) { dsDay = d; dsDraft = {}; renderStats(); }
+async function dsSave(box) {
+  const el = $('#' + box); const get = (k) => el.querySelector(`[data-k="${k}"]`).value;
+  const patch = { phone_min: parseMin(get('phone_min')), youtube_min: parseMin(get('youtube_min')), study_min: parseMin(get('study_min')), note: get('note').trim() };
+  if (DSK.every(k => patch[k] == null) && !patch.note) { toast('数字をひとつでも入れてください'); return; }
+  if (patch.youtube_min != null && patch.phone_min != null && patch.youtube_min > patch.phone_min) { toast('YouTubeがスマホ合計より長くなっています'); return; }
+  const cur = statOf(dsDay);
+  const row = { user_id: session.user.id, date: dsDay, ...patch, updated_at: new Date().toISOString() };
+  const { data, error } = await sb.from('daily_stats').upsert(row, { onConflict: 'user_id,date' }).select().single();
+  if (error) return fail(error);
+  if (cur) Object.assign(cur, data); else stats.push(data);
+  dsDraft = {}; renderStats(); toast(`${fmtDate(dsDay)}の数字を保存しました`);
+}
+function dsOpen() {
+  const l = stats.filter(s => s.date >= addDays(TODAY, -29)).sort((a, b) => a.date < b.date ? 1 : -1);
+  const g = 'display:grid;grid-template-columns:64px 1fr 1fr 1fr;gap:6px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:center';
+  $('#dsList').innerHTML = l.length ? `<div style="${g};color:var(--fg3);font-size:12px"><span>日付</span><span>スマホ</span><span>YouTube</span><span>勉強</span></div>` + l.map(s => `<div style="${g}"><span class="d" style="color:var(--fg3);font-size:12.5px">${s.date === TODAY ? '今日' : fmtShort(s.date) + ' ' + W[dow(s.date)]}</span><span>${fmtMin(s.phone_min)}</span><span style="${s.youtube_min >= 120 ? 'color:var(--danger)' : ''}">${fmtMin(s.youtube_min)}</span><span style="${s.study_min ? 'color:var(--pri);font-weight:600' : ''}">${fmtMin(s.study_min)}</span>${s.note ? `<span style="grid-column:1/-1;color:var(--fg2);font-size:12px;margin-top:-4px">${esc(s.note)}</span>` : ''}</div>`).join('') : '<div class="empty">まだ記録がありません</div>';
+  const sum = (a, k) => a.reduce((s, x) => s + (x[k] || 0), 0);
+  const lo = l.filter(s => s.youtube_min != null && s.study_min != null && s.youtube_min < 60), hi = l.filter(s => s.youtube_min != null && s.study_min != null && s.youtube_min >= 60);
+  const wk = stats.filter(s => s.date >= addDays(TODAY, -6)), pw = stats.filter(s => s.date >= addDays(TODAY, -13) && s.date < addDays(TODAY, -6));
+  const line1 = `この7日: 勉強 ${fmtMin(sum(wk, 'study_min'))} · YouTube ${fmtMin(sum(wk, 'youtube_min'))}${pw.length ? `（前の7日: 勉強 ${fmtMin(sum(pw, 'study_min'))} · YouTube ${fmtMin(sum(pw, 'youtube_min'))}）` : ''}`;
+  const line2 = lo.length >= 3 && hi.length >= 3 ? `YouTube 1h未満の日の勉強 ${fmtMin(Math.round(sum(lo, 'study_min') / lo.length))} ／ 1h以上の日 ${fmtMin(Math.round(sum(hi, 'study_min') / hi.length))}` : 'YouTubeと勉強の関係は、それぞれ3日以上たまると出ます';
+  $('#dsInsight').innerHTML = `${esc(line1)}<br>${esc(line2)}`;
+  $('#dsDlg').showModal();
+}
+$('#dsMore').onclick = dsOpen; $('#dsMore2').onclick = dsOpen;
+
 /* ================= money ================= */
-const monthsBack = (n, from) => { const out = []; for (let i = n - 1; i >= 0; i--) out.push(addMonths(from, -i)); return out; };
+const monthsBack =(n, from) => { const out = []; for (let i = n - 1; i >= 0; i--) out.push(addMonths(from, -i)); return out; };
 const monthsBetween = (a, b) => { const [y1, m1] = a.split('-').map(Number), [y2, m2] = b.split('-').map(Number); return (y2 - y1) * 12 + (m2 - m1); };
 function latestBal(accId, upTo) { let b = null; for (const x of balances) { if (x.account_id !== accId || x.date > upTo) continue; if (!b || x.date > b.date) b = x; } return b; }
 function projected(acc, upTo = TODAY) {
@@ -1636,8 +1764,11 @@ function renderMoney() {
     const pm = addMonths(mm, -1); const pOut = txs.filter(t => ym(t.date) === pm && curOf(t.account_id) === c && +t.amount < 0).reduce((s, t) => s + +t.amount, 0);
     const diff = pOut && out ? Math.abs(out) - Math.abs(pOut) : null; const cmp = diff === null ? '' : `<small class="${diff > 0 ? 'neg' : 'pos'}">先月比 ${diff > 0 ? '+' : '−'}${fmtAmt(Math.abs(diff), c)}</small>`;
     const g = c === 'SGD' ? settings.goal_sgd : settings.goal_jpy; const net = inc + out; const pct = g ? Math.max(0, Math.min(100, net / g * 100)) : null;
-    return `<div class="card curcard"><div class="hd"><b>${c}</b><span class="muted">${accs.length} 口座</span></div>
-      <div class="total">${total === null ? '–' : fmtAmt(total, c)}${cur.some(x => x && x.est) ? '<small>推定</small>' : ''}</div>
+    const pmEnd = monthEnd(addMonths(cm, -1)); const pv = accs.map(a => projected(a, pmEnd)); const prevTotal = pv.some(x => x) ? pv.reduce((s, x) => s + (x ? x.value : 0), 0) : null;
+    const bdiff = total !== null && prevTotal !== null ? total - prevTotal : null;
+    const asOf = cur.filter(x => x).map(x => x.asOf).sort().pop();
+    return `<div class="card curcard"><div class="hd"><b>${c} <span class="muted" style="font-weight:400">${c === 'SGD' ? 'シンガポール' : '日本'}</span></b>${bdiff !== null && Math.round(bdiff) ? `<span style="font-size:12px;font-weight:600;color:${bdiff > 0 ? 'var(--ok-fg)' : 'var(--danger)'}">先月末比 ${bdiff > 0 ? '+' : '−'}${fmtAmt(Math.abs(bdiff), c)}</span>` : `<span class="muted">${accs.length} 口座</span>`}</div>
+      <div class="total">${total === null ? '–' : fmtAmt(total, c)}${total !== null ? `<small>${cur.some(x => x && x.est) ? '推定 · 今日時点' : (asOf ? fmtDate(asOf) + ' 時点' : '')}</small>` : ''}</div>
       ${spark(pts)}
       <div style="margin-top:8px">${accs.map(a => { const p = projected(a); return `<div class="acc"><div class="n">${esc(a.name)}<small>${esc(a.sub || '')}</small></div><div class="v">${p ? fmtAmt(p.value, c) : '–'}<small>${p ? (p.est ? '推定 · ' : '') + '記録 ' + fmtDate(p.asOf) : '未記録'}</small></div><button class="rowbtn" onclick="openBal('${a.id}')">記録</button></div>`; }).join('')}</div>
       <div class="io"><div><div class="l">${lab}の収入</div><div class="v in">${inc ? '+' + fmtAmt(inc, c) : '–'}</div></div><div><div class="l">${lab}の支出</div><div class="v out">${out ? '−' + fmtAmt(out, c) : '–'}</div>${cmp}</div></div>
@@ -1649,8 +1780,8 @@ function renderMoney() {
   const cats = {}; const addCat = (c, k, v) => { (cats[c] = cats[c] || {})[k] = (cats[c][k] || 0) + v; };
   mt.filter(t => +t.amount < 0).forEach(t => { const c = curOf(t.account_id); const sp = splitsOf(t.id); if (sp.length) sp.forEach(x => addCat(c, x.category || '未分類', +x.amount)); else addCat(c, t.category || '未分類', Math.abs(+t.amount)); });
   const blocks = ['SGD', 'JPY'].map(c => { const ce = Object.entries(cats[c] || {}).sort((a, b) => b[1] - a[1]).slice(0, 6); if (ce.length < 1) return ''; const cmax = Math.max(1, ...ce.map(x => x[1]));
-    return `<h2 style="margin:16px 0 8px">支出の内訳<span class="n">${c}</span></h2><div class="cats">` + ce.map(([n, v]) => `<div class="r"><span class="lab">${esc(n)}</span><span class="tr"><i style="width:${v / cmax * 100}%"></i></span><span class="v">${fmtAmt(v, c)}</span></div>`).join('') + '</div>'; });
-  $('#catList').innerHTML = blocks.join('');
+    return `<h2 style="margin:4px 0 8px">支出の内訳<span class="n">${c}</span></h2><div class="cats">` + ce.map(([n, v]) => `<div class="r"><span class="lab">${esc(n)}</span><span class="tr"><i style="width:${v / cmax * 100}%"></i></span><span class="v">${fmtAmt(v, c)}</span></div>`).join('') + '</div>'; }).filter(Boolean);
+  $('#catList').innerHTML = blocks.join('') + (blocks.length && mt.length ? '<div style="height:1px;background:var(--line);margin:14px 0 6px"></div>' : '');
   $('#catOptions').innerHTML = allCats().map(c => `<option value="${esc(c)}">`).join('');
   $('#recList').innerHTML = recs.length ? recs.map(r => { const c = curOf(r.account_id); const a = accounts.find(x => x.id === r.account_id); return `<div class="acc"><div class="n">${esc(r.name)}<small>${esc(a?.name || '')}${r.day ? ' · 毎月' + r.day + '日' : ' · 毎月'}</small></div><div class="v">${r.kind === 'in' ? '+' : '−'}${fmtAmt(r.amount, c)}</div><button class="rowbtn" onclick="openRec('${r.id}')">編集</button></div>`; }).join('') : '<div class="empty" style="padding:8px 0">なし</div>';
   $('#goalBox').innerHTML = `<div class="muted">SGD ${settings.goal_sgd ? fmtAmt(settings.goal_sgd, 'SGD') : '未設定'} ／ JPY ${settings.goal_jpy ? fmtAmt(settings.goal_jpy, 'JPY') : '未設定'}</div>`;
