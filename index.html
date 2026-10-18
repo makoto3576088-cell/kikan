@@ -72,7 +72,17 @@ svg.lg{display:block;width:72%;height:72%;color:#fff}
 #login .err{color:var(--danger);font-size:13px;min-height:20px;margin-top:8px}
 
 /* ---------- gate ---------- */
-#gate{position:fixed;inset:0;background:var(--bg);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
+#gate{position:fixed;inset:0;background:var(--bg);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+#gate:has(#gPlan:not([hidden])){align-items:flex-start;padding-top:max(24px,env(safe-area-inset-top))}
+.plan{padding:14px 16px}.plan .ph2{display:flex;align-items:center;gap:8px;margin-bottom:8px}.plan .ph2 b{font-size:14px}.plan .ph2 .muted{font-size:12px}
+.plan .focus{font-size:14px;font-weight:600;line-height:1.5;margin-bottom:8px}
+.plan .tl{display:grid;grid-template-columns:52px 1fr;gap:4px 10px;font-size:13.5px;line-height:1.5}
+.plan .tl .t{color:var(--pri);font-weight:600;font-variant-numeric:tabular-nums}
+.plan .tl .d.past{color:var(--fg3)}
+.plan .sec{font-size:11.5px;font-weight:600;color:var(--fg3);margin:10px 0 4px;letter-spacing:.04em}
+.plan .li{font-size:13px;color:var(--fg2);line-height:1.6}
+.plan .note{margin-top:10px;font-size:13px;line-height:1.6;color:var(--fg2);background:var(--d100);border-radius:10px;padding:8px 10px}
+.gplan{margin-bottom:18px}.gplan .tl{grid-template-columns:48px 1fr}
 .gatebox{width:min(520px,100%)}
 .gatebox .k{font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--pri);margin-bottom:8px}
 .gatebox h1{font-size:26px;margin:0 0 4px;letter-spacing:-.015em}
@@ -575,6 +585,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 
 <div id="gate" class="hidden gate">
   <div class="gatebox">
+    <div class="card plan gplan" id="gPlan" hidden></div>
     <div class="k">今日の一言</div>
     <h1>いま、どんな感じ？</h1>
     <p id="gDate"></p>
@@ -615,6 +626,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <!-- HOME -->
   <section class="page" id="tab-home" data-on="1">
     <div class="greet"><div><h1 id="greet"></h1><div class="d" id="todayLabel"></div></div><span class="streak" id="streak" hidden><svg class="i"><use href="#i-flame"/></svg><span></span></span></div>
+    <div class="card plan" id="planCard" hidden></div>
     <div class="jbox" id="jbox">
       <label class="jlab" for="jQuick">今日の記録</label>
       <textarea id="jQuick" placeholder="いま思っていること、あったこと"></textarea>
@@ -846,7 +858,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.3</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.4</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -896,7 +908,7 @@ function fail(e) { console.error(e); toast('保存できませんでした。通
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 /* ================= state ================= */
-let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [], studentMemos = [], lessonNotes = [], stats = [];
+let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [], studentMemos = [], lessonNotes = [], stats = [], plans = [];
 let filter = { scope: 'all', done: false, project: '' }, stuFilter = 'active', selStu = null, projShowAll = false, moneyMonth = ym(TODAY), jQuery = '';
 let session = null, loaded = false, lastLoad = 0, loading = false;
 
@@ -946,7 +958,7 @@ document.addEventListener('keydown', e => {
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
 window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
 $('#setExport').onclick = () => {
-  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, student_memos: studentMemos, lesson_notes: lessonNotes, tx_splits: splits, events, daily_stats: stats };
+  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, student_memos: studentMemos, lesson_notes: lessonNotes, daily_plans: plans, tx_splits: splits, events, daily_stats: stats };
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `kikan-backup-${TODAY}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };
 function ask({ title = '', msg = '', value = null, ok = 'OK', danger = false } = {}) {
@@ -975,10 +987,10 @@ async function loadAll(silent) {
   const q = (t, o) => sb.from(t).select('*').order(o || 'created_at');
   try {
     const r = await Promise.all([q('tasks'), q('projects'), sb.from('journal').select('*').order('created_at', { ascending: false }),
-      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at'), q('student_memos', 'updated_at'), q('lesson_notes', 'date'), q('daily_stats', 'date')]);
+      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at'), q('student_memos', 'updated_at'), q('lesson_notes', 'date'), q('daily_stats', 'date'), sb.from('daily_plans').select('*').order('date', { ascending: false }).limit(3)]);
     const err = r.find(x => x.error); if (err) throw err.error;
     [tasks, projects, journal, students, lessons, accounts, balances, txs, recs] = r.slice(0, 9).map(x => x.data || []);
-    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || []; stats = r[16].data || [];
+    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || []; stats = r[16].data || []; plans = r[17].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
     if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && t !== 'camp' && !needGate() ? t : 'home'); }
@@ -1454,8 +1466,28 @@ function renderHomeEvents() {
   $('#hEvNext').textContent = cur ? `進行中 〜${hm(cur.end_time)}` : nx ? `次 ${hm(nx.start_time)} · あと${left(toMin(hm(nx.start_time)) - nowM)}` : (l.some(e => !e.all_day) ? '今日の予定は終了' : '');
   $('#hEvList').innerHTML = l.length ? l.map(e => { const st = e.all_day ? '' : hm(e.start_time), en = e.all_day ? '' : hm(e.end_time); const past = !e.all_day && en && en <= now; return `<div class="hev" style="${past ? 'opacity:.5' : ''}" onclick="selDay = TODAY; showTab('sched'); renderSchedule(); openEv('${e.id}', TODAY)"><span class="t">${e.all_day ? '終日' : st}</span><span class="evbar ${e.scope}"></span><span class="n">${esc(e.title)}${e.location ? ` <span class="muted">${esc(e.location)}</span>` : ''}</span></div>`; }).join('') : '<div class="empty" style="padding:10px">今日の予定はありません</div>';
 }
+const planOf = (d) => plans.find(p => p.date === d);
+function planHtml(p, compact) {
+  const pl = p.plan || {}; const now = nowHM();
+  const blocks = (pl.blocks || []).filter(b => b.t && b.d); const shown = compact ? blocks.slice(0, 6) : blocks;
+  let h = `<div class="ph2"><b>今日のプラン</b><span class="muted">${compact ? '秘書より' : fmtDate(p.date, false) + ' · 秘書より'}</span>${compact ? '' : `<span class="muted" style="margin-left:auto">${fmtTime(p.updated_at || p.created_at)} 作成</span>`}</div>`;
+  if (pl.focus) h += `<div class="focus">${esc(pl.focus)}</div>`;
+  if (shown.length) h += `<div class="tl">${shown.map(b => `<span class="t">${esc(b.t)}</span><span class="d ${p.date === TODAY && /^\d{1,2}:\d{2}$/.test(b.t) && pad(b.t.split(':')[0]) + ':' + b.t.split(':')[1] < now ? 'past' : ''}">${esc(b.d)}</span>`).join('')}</div>`;
+  if (compact && blocks.length > shown.length) h += `<div class="li" style="margin-top:4px">…ほか ${blocks.length - shown.length} 件はホームで</div>`;
+  if (!compact) {
+    if (pl.lessons?.length) h += `<div class="sec">授業</div>` + pl.lessons.map(x => `<div class="li">${esc(x)}</div>`).join('');
+    if (pl.watch?.length) h += `<div class="sec">気をつける</div>` + pl.watch.map(x => `<div class="li">${esc(x)}</div>`).join('');
+  }
+  if (pl.note) h += `<div class="note">${esc(pl.note)}</div>`;
+  return h;
+}
+function renderPlan() {
+  const p = planOf(TODAY); const el = $('#planCard'), g = $('#gPlan');
+  el.hidden = !p; g.hidden = !p; if (!p) return;
+  el.innerHTML = planHtml(p, false); g.innerHTML = planHtml(p, true);
+}
 function renderHome() {
-  renderCond(); renderHomeEvents();
+  renderCond(); renderHomeEvents(); renderPlan();
   const h = nowH();
   $('#greet').textContent = h < 11 ? 'おはようございます' : h < 18 ? 'こんにちは' : 'こんばんは';
   $('#todayLabel').textContent = fmtDate(TODAY, false);
