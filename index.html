@@ -178,7 +178,15 @@ input::placeholder,textarea::placeholder{color:var(--fg3)}
 .list{display:flex;flex-direction:column}
 .row{display:flex;gap:12px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
-.row .t{flex:1;min-width:0;cursor:pointer}
+.row .t{flex:1;min-width:0;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.row.dragging{opacity:.35}
+.dropbar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:flex;align-items:center;gap:6px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 30px rgba(0,0,0,.12)}
+.dropbar .dl{font-size:12px;color:var(--fg3);white-space:nowrap;padding:0 2px}
+.dropbar button{flex:1;min-width:0;padding:14px 2px;border-radius:12px;border:1.5px dashed var(--d300);background:var(--bg);color:var(--fg2);font-size:13.5px;font-weight:600;transition:all .1s}
+.dropbar button.hot{background:var(--pri-soft);border-color:var(--pri);border-style:solid;color:var(--pri);transform:scale(1.06)}
+.dragghost{position:fixed;z-index:80;pointer-events:none;background:var(--surface);color:var(--fg);border:1.5px solid var(--pri);border-radius:12px;padding:8px 12px;box-shadow:0 12px 32px rgba(0,0,0,.22);font-size:14px;font-weight:600;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:translate(-50%,-130%)}
+.wd.hot,.md.hot{background:var(--pri-soft);outline:2px solid var(--pri);outline-offset:-2px}
+body.dragging{cursor:grabbing}
 .row .title{font-weight:500;line-height:1.45;word-break:break-word}
 .row .sub{color:var(--fg3);font-size:12.5px;display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;align-items:center}
 .row.done .title{color:var(--fg3);text-decoration:line-through}
@@ -729,6 +737,8 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 </main>
 </div>
 
+<div class="dropbar" id="dropbar" hidden><span class="dl">期限を…</span><button data-due="today">今日</button><button data-due="tomorrow">明日</button><button data-due="fri">金曜</button><button data-due="nextweek">来週</button><button data-due="none">なし</button></div>
+<div class="dragghost" id="dragghost" hidden></div>
 <nav class="tabbar" id="tabbar">
   <button data-tab="home" aria-selected="true"><svg class="i"><use href="#i-home"/></svg>ホーム</button>
   <button data-tab="sched" aria-selected="false"><svg class="i"><use href="#i-cal"/></svg>予定</button>
@@ -858,7 +868,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.4</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.5</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -1232,11 +1242,11 @@ function renderSchedule() {
   const labM = sMonthOpen ? sMonth : ym(selDay);
   $('#sLabel').textContent = `${labM.slice(0, 4)}年${+labM.slice(5)}月`;
   $('#sMonthTgl').setAttribute('aria-pressed', sMonthOpen); $('#mgrid').classList.toggle('hidden', !sMonthOpen);
-  $('#wstrip').innerHTML = [0,1,2,3,4,5,6].map(i => { const d = addDays(mon, i); const w = dow(d); return `<button class="wd ${d === selDay ? 'sel' : ''} ${d === TODAY ? 'today' : ''} ${w === 0 ? 'sun' : w === 6 ? 'sat' : ''}" onclick="pickDay('${d}')"><span class="wdn">${W[w]}</span><span class="wdd">${+d.slice(8)}</span>${dotsHtml(d, 3)}</button>`; }).join('');
+  $('#wstrip').innerHTML = [0,1,2,3,4,5,6].map(i => { const d = addDays(mon, i); const w = dow(d); return `<button class="wd ${d === selDay ? 'sel' : ''} ${d === TODAY ? 'today' : ''} ${w === 0 ? 'sun' : w === 6 ? 'sat' : ''}" data-d="${d}" onclick="pickDay('${d}')"><span class="wdn">${W[w]}</span><span class="wdd">${+d.slice(8)}</span>${dotsHtml(d, 3)}</button>`; }).join('');
   if (sMonthOpen) {
     const first = sMonth + '-01'; const start = mondayOf(first); const cells = [];
     for (let i = 0; i < 42; i++) { const d = addDays(start, i); if (i >= 35 && ym(d) !== sMonth) break; cells.push(d); }
-    $('#mgrid').innerHTML = [1,2,3,4,5,6,0].map(w => `<div class="mh ${w === 0 ? 'sun' : w === 6 ? 'sat' : ''}">${W[w]}</div>`).join('') + cells.map(d => `<button class="md ${ym(d) !== sMonth ? 'out' : ''} ${d === selDay ? 'sel' : ''} ${d === TODAY ? 'today' : ''}" onclick="pickDay('${d}')"><span class="n">${+d.slice(8)}</span>${dotsHtml(d, 3)}</button>`).join('');
+    $('#mgrid').innerHTML = [1,2,3,4,5,6,0].map(w => `<div class="mh ${w === 0 ? 'sun' : w === 6 ? 'sat' : ''}">${W[w]}</div>`).join('') + cells.map(d => `<button class="md ${ym(d) !== sMonth ? 'out' : ''} ${d === selDay ? 'sel' : ''} ${d === TODAY ? 'today' : ''}" data-d="${d}" onclick="pickDay('${d}')"><span class="n">${+d.slice(8)}</span>${dotsHtml(d, 3)}</button>`).join('');
   }
   const ev = eventsOn(selDay), tk = tasksOn(selDay), now = nowHM();
   $('#dayLabel').textContent = (selDay === TODAY ? '今日 ' : selDay === addDays(TODAY, 1) ? '明日 ' : '') + fmtDate(selDay, false);
@@ -1378,7 +1388,7 @@ function taskRow(t, opts = {}) {
   const act = over ? `<button class="rowbtn" onclick="snooze('${t.id}')">→明日</button>` : `<button class="rowbtn" onclick="openTask('${t.id}')">編集</button>`;
   return `<div class="row ${t.status === 'done' ? 'done' : ''}">
     <button class="chk ${t.status}" data-on="${t.status === 'done' ? 1 : 0}" onclick="toggleTask('${t.id}')" aria-label="完了">${t.status === 'done' ? chk : ''}</button>
-    <div class="t" onclick="openTask('${t.id}')"><div class="title">${esc(t.title)}</div><div class="sub">${sub.join('')}</div></div>${act}</div>`;
+    <div class="t" data-task="${t.id}" onclick="openTask('${t.id}')"><div class="title">${esc(t.title)}</div><div class="sub">${sub.join('')}</div></div>${act}</div>`;
 }
 async function toggleTask(id) {
   const t = tasks.find(x => x.id === id); if (!t) return;
@@ -1387,6 +1397,64 @@ async function toggleTask(id) {
   Object.assign(t, patch); renderAll();
   const { error } = await sb.from('tasks').update(patch).eq('id', id); if (error) { Object.assign(t, prev); renderAll(); return fail(error); }
   if (patch.status === 'done') toast('完了にしました', { label: '元に戻す', fn: () => toggleTask(id) });
+}
+/* ---- drag a task to change its due date ---- */
+(() => {
+  let st = null, timer = null, suppressClick = 0;
+  const ghost = () => $('#dragghost'), bar = () => $('#dropbar');
+  const dueFor = (k) => k === 'today' ? TODAY : k === 'tomorrow' ? addDays(TODAY, 1) : k === 'fri' ? nextDow(5) : k === 'nextweek' ? addDays(MON, 7) : null;
+  const dueLabel = (k) => ({ today: '今日', tomorrow: '明日', fri: '金曜', nextweek: '来週', none: 'なし' })[k];
+  function targetAt(x, y) {
+    const el = document.elementFromPoint(x, y); if (!el) return null;
+    const b = el.closest('.dropbar button'); if (b) return { el: b, due: dueFor(b.dataset.due), lab: dueLabel(b.dataset.due) };
+    const d = el.closest('.wd[data-d],.md[data-d]'); if (d) return { el: d, due: d.dataset.d, lab: fmtDate(d.dataset.d) };
+    return null;
+  }
+  function clearHot() { $$('.hot').forEach(e => e.classList.remove('hot')); }
+  function begin(e) {
+    const t = tasks.find(x => x.id === st.id); if (!t) return;
+    st.on = true; document.body.classList.add('dragging'); st.row?.classList.add('dragging');
+    const g = ghost(); g.textContent = t.title; g.hidden = false; move(e.clientX, e.clientY);
+    bar().hidden = false; requestAnimationFrame(autoscroll);
+  }
+  function move(x, y) { st.x = x; st.y = y; const g = ghost(); g.style.left = x + 'px'; g.style.top = y + 'px'; clearHot(); const tg = targetAt(x, y); if (tg) tg.el.classList.add('hot'); st.target = tg; }
+  function autoscroll() {
+    if (!st || !st.on) return;
+    const top = 90, bottom = window.innerHeight - 150; let dy = 0;
+    if (st.y < top) dy = -Math.ceil((top - st.y) / 6); else if (st.y > bottom) dy = Math.ceil((st.y - bottom) / 6);
+    if (dy) { window.scrollBy(0, dy); move(st.x, st.y); }
+    requestAnimationFrame(autoscroll);
+  }
+  function end(apply) {
+    clearTimeout(timer); timer = null; if (!st) return;
+    const s = st; st = null; document.body.classList.remove('dragging'); s.row?.classList.remove('dragging');
+    ghost().hidden = true; bar().hidden = true; clearHot();
+    if (s.on) { suppressClick = Date.now() + 400; if (apply && s.target) setTaskDue(s.id, s.target.due, s.target.lab); }
+  }
+  document.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || document.querySelector('dialog[open]')) return;
+    const t = e.target.closest('.row .t[data-task]'); if (!t) return;
+    st = { id: t.dataset.task, row: t.closest('.row'), x: e.clientX, y: e.clientY, on: false, mouse: e.pointerType === 'mouse', target: null };
+    if (!st.mouse) timer = setTimeout(() => { if (st && !st.on) begin(e); }, 320);
+  });
+  document.addEventListener('pointermove', e => {
+    if (!st) return;
+    if (!st.on) { const dx = e.clientX - st.x, dy = e.clientY - st.y; if (Math.hypot(dx, dy) > (st.mouse ? 6 : 10)) { if (st.mouse) begin(e); else end(false); } return; }
+    move(e.clientX, e.clientY);
+  });
+  document.addEventListener('pointerup', () => end(true));
+  document.addEventListener('pointercancel', () => end(false));
+  document.addEventListener('touchmove', e => { if (st && st.on) e.preventDefault(); }, { passive: false });
+  document.addEventListener('click', e => { if (Date.now() < suppressClick) { e.stopPropagation(); e.preventDefault(); } }, true);
+})();
+async function setTaskDue(id, due, lab) {
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  if (t.due_date === due) { toast(`期限はもう${lab}です`); return; }
+  const prev = { due_date: t.due_date, start_date: t.start_date };
+  const patch = { due_date: due }; if (due && t.start_date && t.start_date > due) patch.start_date = due;
+  Object.assign(t, patch); renderAll();
+  const { error } = await sb.from('tasks').update(patch).eq('id', id); if (error) { Object.assign(t, prev); renderAll(); return fail(error); }
+  toast(due ? `期限を${lab}にしました` : '期限を外しました', { label: '元に戻す', fn: async () => { const { error } = await sb.from('tasks').update(prev).eq('id', id); if (error) return fail(error); Object.assign(t, prev); renderAll(); } });
 }
 async function snooze(id) {
   const t = tasks.find(x => x.id === id); if (!t) return;
