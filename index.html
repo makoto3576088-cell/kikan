@@ -679,7 +679,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
         <div class="card" style="margin-bottom:16px"><h2>今日の数字 <span class="n" id="dsToday"></span><button class="linkbtn" id="dsMore" style="margin-left:auto;font-size:12px">30日</button></h2><div id="dsHome"></div></div>
         <div class="card" style="margin-bottom:16px"><h2>コンディション <span class="n" id="hToday"></span><button class="linkbtn" id="hMore" style="margin-left:auto;font-size:12px">30日</button></h2><div class="cond" id="hCond"></div></div>
         <div class="card" style="margin-bottom:16px"><h2>今週の完了数 <span class="n" id="weekLabel"></span></h2><div class="bars" id="bars"></div></div>
-        <div class="card"><h2>最近のジャーナル <button class="linkbtn" data-tab="journal" style="margin-left:auto;font-size:12px">すべて</button></h2><div id="jRecent"></div></div>
+        <div class="card" id="jRecentCard"><h2>最近のジャーナル <button class="linkbtn" data-tab="journal" style="margin-left:auto;font-size:12px">すべて</button></h2><div id="jRecent"></div></div>
       </div>
     </div>
   </section>
@@ -890,10 +890,11 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 <div class="mbody">
   <div class="setrow"><div class="l"><b>アカウント</b><small id="setEmail"></small></div><button class="btn flat sm" id="setLogout">ログアウト</button></div>
   <div class="setrow"><div class="l"><b>テーマ</b><small>画面の配色</small></div><div class="seg"><button id="thLight" aria-pressed="true">ライト</button><button id="thDark" aria-pressed="false">ダーク</button></div></div>
+  <div class="setrow"><div class="l"><b>この端末で隠す</b><small>人前で使う端末用。タブごと消えます（他の端末には影響しません）</small></div><div class="seg" id="hideSeg"><button data-hide="money" aria-pressed="false">資産</button><button data-hide="journal" aria-pressed="false">ジャーナル</button></div></div>
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.6</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.7</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -988,7 +989,7 @@ document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const tag = document.activeElement?.tagName; if (['INPUT','TEXTAREA','SELECT'].includes(tag) || document.querySelector('dialog[open]')) return;
   const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'money', '6': 'journal', '7': 'students' };
-  if (map[e.key]) showTab(map[e.key]);
+  if (map[e.key] && !hidden(map[e.key])) showTab(map[e.key]);
 });
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
 window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
@@ -1028,7 +1029,7 @@ async function loadAll(silent) {
     settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || []; stats = r[16].data || []; plans = r[17].data || []; goals = r[18].data || []; miles = r[19].data || []; mats = r[20].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
-    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'camp' && !needGate() ? t : 'home'); }
+    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'camp' && !hidden(t) && !needGate() ? t : 'home'); }
     checkGate();
     if (silent && !first) toast('更新しました');
   } catch (e) { console.error(e); toast('読み込めませんでした。通信を確認してください'); }
@@ -1044,7 +1045,15 @@ function streakDays() {
   while (days.has(d)) { n++; d = addDays(d, -1); }
   return n;
 }
-const needGate = () => !journalToday() && ls.get('kikan.skip') !== TODAY;
+const hidden = (k) => (ls.get('kikan.hide') || '').split(',').includes(k);
+function applyHidden() {
+  for (const k of ['money', 'journal']) { const h = hidden(k); $$(`[data-tab="${k}"]`).forEach(b => { if (b.matches('.navbtn, .tabbar button')) b.hidden = h; }); $$(`#hideSeg [data-hide="${k}"]`).forEach(b => b.setAttribute('aria-pressed', h)); }
+  const hj = hidden('journal'); $('#jbox').hidden = hj; const jc = $('#jRecentCard'); if (jc) jc.hidden = hj;
+  const cur = $$('.page').find(p => p.dataset.on === '1'); if (cur && hidden(cur.id.replace('tab-', ''))) showTab('home');
+}
+$$('#hideSeg [data-hide]').forEach(b => b.onclick = () => { const k = b.dataset.hide; const set = new Set((ls.get('kikan.hide') || '').split(',').filter(Boolean)); set.has(k) ? set.delete(k) : set.add(k); ls.set('kikan.hide', [...set].join(',')); applyHidden(); if (hidden('journal')) $('#gate').classList.add('hidden'); });
+applyHidden();
+const needGate = () => !hidden('journal') && !journalToday() && ls.get('kikan.skip') !== TODAY;
 function checkGate() {
   if (needGate()) { const n = streakDays(); $('#gDate').textContent = `${fmtDate(TODAY, false)}${n ? ` · 連続 ${n} 日継続中` : ''}`; const cur = healthOf(TODAY); gatePending = cur ? Object.fromEntries(['sleep_h','condition','exercise'].filter(k => cur[k] != null).map(k => [k, cur[k]])) : {}; renderGateCond(); $('#gate').classList.remove('hidden'); setTimeout(() => $('#gBody').focus(), 50); }
   else $('#gate').classList.add('hidden');
@@ -1569,9 +1578,10 @@ function planHtml(p, compact) {
   if (compact && blocks.length > shown.length) h += `<div class="li" style="margin-top:4px">…ほか ${blocks.length - shown.length} 件はホームで</div>`;
   if (!compact) {
     if (pl.lessons?.length) h += `<div class="sec">授業</div>` + pl.lessons.map(x => `<div class="li">${esc(x)}</div>`).join('');
-    if (pl.watch?.length) h += `<div class="sec">気をつける</div>` + pl.watch.map(x => `<div class="li">${esc(x)}</div>`).join('');
+    const watch = (pl.watch || []).filter(x => !hidden('money') || !/振込|支払|家賃|S\$|円|入金|返済/.test(x));
+    if (watch.length) h += `<div class="sec">気をつける</div>` + watch.map(x => `<div class="li">${esc(x)}</div>`).join('');
   }
-  if (pl.note) h += `<div class="note">${esc(pl.note)}</div>`;
+  if (pl.note && !hidden('journal')) h += `<div class="note">${esc(pl.note)}</div>`;
   return h;
 }
 function renderPlan() {
