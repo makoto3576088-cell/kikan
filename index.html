@@ -280,6 +280,29 @@ body.dragging{cursor:grabbing}
 .next b{display:block;font-size:12px;color:var(--pri);margin-bottom:4px}
 .next textarea{background:transparent;border:0;padding:0;min-height:44px;border-radius:0;resize:none}
 .next textarea:focus,.next textarea:hover{background:transparent}
+.goal{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:10px;background:var(--surface)}
+.goal.proposed{border-style:dashed}
+.goal .gh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.goal .gt{font-weight:600;font-size:14.5px;flex:1;min-width:0}
+.goal .gd{color:var(--fg3);font-size:12.5px}
+.goal .prog{display:flex;align-items:center;gap:8px;margin:8px 0 4px;font-size:12px;color:var(--fg3)}
+.goal .prog .tr{flex:1;height:6px;background:var(--d100);border-radius:3px;overflow:hidden}
+.goal .prog .tr i{display:block;height:100%;background:var(--ok);border-radius:3px}
+.goal .gn{font-size:12.5px;color:var(--fg2);margin-top:4px;white-space:pre-wrap}
+.ms{display:grid;grid-template-columns:26px 1fr;gap:8px;padding:8px 0 6px;border-top:1px dashed var(--line);font-size:13.5px}
+.ms .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--d300);background:none;padding:0;cursor:pointer;margin-top:1px}
+.ms .dot.doing{border-color:var(--pri);background:linear-gradient(90deg,var(--pri) 50%,transparent 50%)}
+.ms .dot.done{border-color:var(--ok);background:var(--ok)}
+.ms.done .t{color:var(--fg3)}
+.ms small{display:block;color:var(--fg3);font-size:12px;margin-top:2px;white-space:pre-wrap}
+.ms small.clr{color:var(--ok-fg)}
+.goal button.chip,.mat button.chip{border:0;cursor:pointer;font-family:inherit}.mat button.chip.ghost{border:1px dashed var(--d300)}
+.mat{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.mat:last-child{border-bottom:0}
+.mat .d{color:var(--fg3);font-size:12.5px}
+.mat a{color:var(--fg);text-decoration:none;font-weight:500}.mat a:hover{text-decoration:underline}
+.mat .k{margin-left:6px}
+.ksec{display:flex;align-items:center;gap:8px;margin:20px 0 8px}.ksec h2{margin:0}.ksec .linkbtn{margin-left:auto;font-size:12.5px}
 .lesson{display:grid;grid-template-columns:70px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .lesson:last-child{border-bottom:0}
 .lesson .d{color:var(--fg3);font-size:12.5px;padding-top:2px}
@@ -613,6 +636,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <button class="navbtn" data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>プロジェクト<span class="k">4</span></button>
   <button class="navbtn" data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産<span class="k">5</span></button>
   <button class="navbtn" data-tab="journal" aria-selected="false"><svg class="i"><use href="#i-journal"/></svg>ジャーナル<span class="k">6</span></button>
+  <button class="navbtn" data-tab="students" aria-selected="false"><svg class="i"><use href="#i-stu"/></svg>生徒<span class="k">7</span></button>
   <div class="spacer"></div>
   <div class="foot">
     <span class="who" id="whoami"></span>
@@ -695,7 +719,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 
   <!-- STUDENTS -->
   <section class="page" id="tab-students">
-    <div class="ph"><div><h1>生徒</h1><div class="sub" id="stuCount"></div></div><div class="acts"><button class="btn" id="addStu"><svg class="i"><use href="#i-plus"/></svg>生徒を追加</button></div></div>
+    <div class="ph"><div><h1>生徒</h1><div class="sub" id="stuCount"></div></div><div class="acts"><button class="btn flat" id="addStu"><svg class="i"><use href="#i-plus"/></svg>生徒を追加</button></div></div>
     <div class="tools"><div class="seg"><button data-sf="active" aria-pressed="true">在籍・体験中</button><button data-sf="all" aria-pressed="false">すべて</button></div></div>
     <div class="stu">
       <div class="stulist" id="stuList"></div>
@@ -742,6 +766,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
 <nav class="tabbar" id="tabbar">
   <button data-tab="home" aria-selected="true"><svg class="i"><use href="#i-home"/></svg>ホーム</button>
   <button data-tab="sched" aria-selected="false"><svg class="i"><use href="#i-cal"/></svg>予定</button>
+  <button data-tab="students" aria-selected="false"><svg class="i"><use href="#i-stu"/></svg>生徒</button>
   <button data-tab="tasks" aria-selected="false"><svg class="i"><use href="#i-task"/></svg>タスク<span class="badge" id="tabBadge" hidden></span></button>
   <button data-tab="projects" aria-selected="false"><svg class="i"><use href="#i-proj"/></svg>PJ</button>
   <button data-tab="money" aria-selected="false"><svg class="i"><use href="#i-money"/></svg>資産</button>
@@ -868,7 +893,7 @@ dialog::backdrop{background:var(--overlay);backdrop-filter:blur(2px)}
   <div class="setrow"><div class="l"><b>データ</b><small id="setStats"></small></div><div style="display:flex;gap:6px"><button class="btn flat sm" data-act="refresh">更新</button><button class="btn flat sm" id="setExport">書き出し</button></div></div>
   <div class="setrow"><div class="l"><b>入力の書き方</b><small>予定: 明日 15時 面談 1時間 / 金曜 19:00-20:30 / 毎週火曜 12:00 / 平日 / 終日 / @場所 / #私用<br>タスク: 今日中 / 明日 / 金曜 / 10/15 / 来週 / 来月 / 30分 / 1時間半 / #私用 / @プロジェクト名<br>収支: 内容 金額 [円] [口座名] [収入] [#カテゴリ] [昨日 / 10/5]<br>ジャーナル: #タグ を書くと後から絞り込める</small></div></div>
 </div>
-<div class="mfoot"><span class="muted">kikan v4.5</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
+<div class="mfoot"><span class="muted">kikan v4.6</span><div><button class="btn flat" data-close="setDlg">閉じる</button></div></div></dialog>
 
 <div class="toast" id="toast"></div>
 
@@ -918,7 +943,7 @@ function fail(e) { console.error(e); toast('保存できませんでした。通
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 /* ================= state ================= */
-let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [], studentMemos = [], lessonNotes = [], stats = [], plans = [];
+let tasks = [], projects = [], journal = [], students = [], lessons = [], accounts = [], balances = [], txs = [], recs = [], settings = {}, health = [], splits = [], events = [], wishes = [], studentMemos = [], lessonNotes = [], stats = [], plans = [], goals = [], miles = [], mats = [];
 let filter = { scope: 'all', done: false, project: '' }, stuFilter = 'active', selStu = null, projShowAll = false, moneyMonth = ym(TODAY), jQuery = '';
 let session = null, loaded = false, lastLoad = 0, loading = false;
 
@@ -962,13 +987,13 @@ $$('[data-act="settings"]').forEach(b => b.onclick = () => { $('#setStats').text
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const tag = document.activeElement?.tagName; if (['INPUT','TEXTAREA','SELECT'].includes(tag) || document.querySelector('dialog[open]')) return;
-  const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'money', '6': 'journal' };
+  const map = { '1': 'home', '2': 'sched', '3': 'tasks', '4': 'projects', '5': 'money', '6': 'journal', '7': 'students' };
   if (map[e.key]) showTab(map[e.key]);
 });
 window.addEventListener('offline', () => toast('オフラインです。つながるまで保存できません'));
 window.addEventListener('online', () => { if (session && loaded) loadAll(true); });
 $('#setExport').onclick = () => {
-  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, student_memos: studentMemos, lesson_notes: lessonNotes, daily_plans: plans, tx_splits: splits, events, daily_stats: stats };
+  const data = { exported_at: new Date().toISOString(), tasks, projects, journal, students, lessons, accounts, balances, transactions: txs, recurring: recs, settings, health, wishes, student_memos: studentMemos, lesson_notes: lessonNotes, daily_plans: plans, tx_splits: splits, events, daily_stats: stats, student_goals: goals, milestones: miles, materials: mats };
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = `kikan-backup-${TODAY}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 };
 function ask({ title = '', msg = '', value = null, ok = 'OK', danger = false } = {}) {
@@ -997,13 +1022,13 @@ async function loadAll(silent) {
   const q = (t, o) => sb.from(t).select('*').order(o || 'created_at');
   try {
     const r = await Promise.all([q('tasks'), q('projects'), sb.from('journal').select('*').order('created_at', { ascending: false }),
-      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at'), q('student_memos', 'updated_at'), q('lesson_notes', 'date'), q('daily_stats', 'date'), sb.from('daily_plans').select('*').order('date', { ascending: false }).limit(3)]);
+      q('students'), q('lessons', 'date'), sb.from('accounts').select('*').order('sort_order'), q('balances', 'date'), q('transactions', 'date'), sb.from('recurring').select('*').order('name'), sb.from('settings').select('*').maybeSingle(), q('health', 'date'), q('tx_splits'), q('events', 'date'), q('wishes', 'created_at'), q('student_memos', 'updated_at'), q('lesson_notes', 'date'), q('daily_stats', 'date'), sb.from('daily_plans').select('*').order('date', { ascending: false }).limit(3), q('student_goals'), q('milestones', 'ord'), q('materials', 'made_on')]);
     const err = r.find(x => x.error); if (err) throw err.error;
     [tasks, projects, journal, students, lessons, accounts, balances, txs, recs] = r.slice(0, 9).map(x => x.data || []);
-    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || []; stats = r[16].data || []; plans = r[17].data || [];
+    settings = r[9].data || {}; health = r[10].data || []; splits = r[11].data || []; events = r[12].data || []; wishes = r[13].data || []; studentMemos = r[14].data || []; lessonNotes = r[15].data || []; stats = r[16].data || []; plans = r[17].data || []; goals = r[18].data || []; miles = r[19].data || []; mats = r[20].data || [];
     const first = !loaded; loaded = true; lastLoad = Date.now();
     renderAll();
-    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'students' && t !== 'camp' && !needGate() ? t : 'home'); }
+    if (first) { const t = ls.get('kikan.tab'); showTab(t && t !== 'camp' && !needGate() ? t : 'home'); }
     checkGate();
     if (silent && !first) toast('更新しました');
   } catch (e) { console.error(e); toast('読み込めませんでした。通信を確認してください'); }
@@ -1652,22 +1677,74 @@ const AVC = [['#e6f1fe','#006FEE'],['#e8faf0','#0e8a46'],['#fef3e2','#b7791f'],[
 const avStyle = (name) => { let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0; const [b, f] = AVC[h % AVC.length]; return `background:${b};color:${f}`; };
 $$('[data-sf]').forEach(b => b.onclick = () => { stuFilter = b.dataset.sf; $$('[data-sf]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderStudents(); });
 function selectStu(id) { selStu = id; renderStudents(); if (window.innerWidth < 760) $('#karte').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+const GT = { reach: '到達', stack: '積み上げ', habit: '気持ち・習慣' };
+const GT_NEXT = { reach: 'stack', stack: 'habit', habit: 'reach' };
+const MS_NEXT = { todo: 'doing', doing: 'done', done: 'todo' };
+let matShowAll = false;
 function renderStudents() {
   const rank = s => s.status === 'trial' ? 0 : s.status === 'active' ? 1 : 2;
-  const l = students.filter(s => stuFilter === 'all' || s.status === 'active' || s.status === 'trial').sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'ja'));
+  const l = students.filter(s => stuFilter === 'all' || s.status === 'active' || s.status === 'trial').sort((a, b) => rank(a) - rank(b) || (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name, 'ja'));
   $('#stuCount').textContent = `在籍 ${students.filter(s => s.status === 'active').length}・体験中 ${students.filter(s => s.status === 'trial').length}`;
   if (selStu && !l.find(s => s.id === selStu)) selStu = null;
   if (!selStu && l.length) selStu = l[0].id;
-  $('#stuList').innerHTML = l.length ? l.map(s => { const last = lessons.filter(x => x.student_id === s.id).sort((a, b) => a.date < b.date ? 1 : -1)[0];
-    return `<div class="stuitem" onclick="selectStu('${s.id}')" aria-selected="${s.id === selStu}"><div class="av" style="${avStyle(s.name)}">${esc(s.name.slice(0, 1))}</div><div class="n"><b>${esc(s.name)}</b><small>${esc([s.grade, s.subjects].filter(Boolean).join(' · ') || (last ? '最終 ' + fmtDate(last.date) : ''))}</small></div><span class="chip ${s.status}">${STL[s.status] || ''}</span></div>`; }).join('') : '<div class="empty" style="width:100%"><b>生徒はまだいません</b>「生徒を追加」から</div>';
+  $('#stuList').innerHTML = l.length ? l.map(s => { const g = goals.filter(x => x.student_id === s.id && x.status === 'active'); const ms = miles.filter(m => g.some(x => x.id === m.goal_id)); const dn = ms.filter(m => m.status === 'done').length; const nm = mats.filter(m => m.student_id === s.id).length; const pend = goals.some(x => x.student_id === s.id && x.status === 'proposed');
+    const sub = [s.grade, s.subjects].filter(Boolean).join(' · ');
+    return `<div class="stuitem" onclick="selectStu('${s.id}')" aria-selected="${s.id === selStu}"><div class="av" style="${avStyle(s.name)}">${esc(s.name.slice(0, 1))}</div><div class="n"><b>${esc(s.name)}</b><small>${esc(sub)}${ms.length ? ` · 道のり ${dn}/${ms.length}` : ''}${nm ? ` · 教材 ${nm}` : ''}</small></div>${pend ? '<span class="chip warn">案</span>' : s.status !== 'active' ? `<span class="chip ${s.status}">${STL[s.status] || ''}</span>` : ''}</div>`; }).join('') : '<div class="empty" style="width:100%"><b>生徒はまだいません</b>「生徒を追加」から</div>';
   const st = students.find(s => s.id === selStu);
-  if (!st) { $('#karte').innerHTML = '<div class="empty">生徒を選ぶとカルテが出ます</div>'; return; }
-  const lsn = lessons.filter(x => x.student_id === st.id).sort((a, b) => a.date < b.date ? 1 : -1);
-  $('#karte').innerHTML = `<div class="top"><div><h1>${esc(st.name)} <span class="chip ${st.status}" style="vertical-align:middle">${STL[st.status]}</span></h1><div class="meta">${[st.grade, st.campus, st.subjects, st.schedule].filter(Boolean).map(esc).join(' · ')}${lsn.length ? `<span class="muted">授業 ${lsn.length} 回 · 最終 ${fmtDate(lsn[0].date)}</span>` : ''}</div></div><div class="acts"><button class="btn flat" onclick="openStu('${st.id}')">編集</button><button class="btn" onclick="openLes(null)"><svg class="i"><use href="#i-plus"/></svg>授業を記録</button></div></div>
-    <dl class="kv">${st.goal_school || st.goal_date ? `<dt>目標</dt><dd>${esc([st.goal_school, st.goal_date].filter(Boolean).join('　'))}</dd>` : ''}${st.strengths ? `<dt>得意・苦手</dt><dd>${esc(st.strengths)}</dd>` : ''}${st.notes ? `<dt>接し方</dt><dd>${esc(st.notes)}</dd>` : ''}${st.parent_note ? `<dt>保護者へ</dt><dd>${esc(st.parent_note)}</dd>` : ''}</dl>
-    <div class="next"><b>次回やること</b><textarea placeholder="次の授業でやること（自動保存）" onblur="saveNext('${st.id}', this.value)">${esc(st.next_plan)}</textarea></div>
-    <h2 style="margin-top:16px">授業ログ <span class="n">${lsn.length}</span></h2>
-    <div>${lsn.length ? lsn.map(x => `<div class="lesson"><div class="d">${fmtDate(x.date, false)}</div><div class="b">${x.subject ? `<span class="muted">${esc(x.subject)}</span> ` : ''}${esc(x.did)}${x.homework ? `<small class="hw">宿題：${esc(x.homework)}</small>` : ''}${x.note ? `<small>${esc(x.note)}</small>` : ''} <button class="rowbtn" onclick="openLes('${x.id}')">編集</button></div></div>`).join('') : '<div class="empty" style="padding:8px 0">まだ記録がありません。「授業を記録」から</div>'}</div>`;
+  if (!st) { $('#karte').innerHTML = '<div class="empty">生徒を選ぶとページが出ます</div>'; return; }
+  const memo = st.student_key ? memoOf(st.student_key) : null;
+  const notes = st.student_key ? notesOf(st.student_key) : [];
+  const gl = goals.filter(g => g.student_id === st.id && g.status !== 'dropped').sort((a, b) => (a.status === 'done') - (b.status === 'done') || (a.created_at < b.created_at ? -1 : 1));
+  const goalCard = g => { const ms = miles.filter(m => m.goal_id === g.id).sort((a, b) => a.ord - b.ord); const dn = ms.filter(m => m.status === 'done').length;
+    return `<div class="goal ${g.status}">
+      <div class="gh"><button type="button" class="chip pri" title="型を切り替え" onclick="goalType('${g.id}')">${GT[g.goal_type] || g.goal_type}</button><span class="gt">${esc(g.title)}</span>${g.deadline ? `<span class="gd">${esc(g.deadline)}</span>` : ''}
+        ${g.status === 'proposed' ? `<span class="chip warn">案</span><button type="button" class="btn sm" onclick="goalSet('${g.id}','active')">OK</button>` : g.status === 'done' ? '<span class="chip ok">達成</span>' : ''}
+        <button type="button" class="rowbtn" style="opacity:1" onclick="goalMenu('${g.id}')">…</button></div>
+      ${g.note ? `<div class="gn">${esc(g.note)}</div>` : ''}
+      ${ms.length ? `<div class="prog"><span class="tr"><i style="width:${dn / ms.length * 100}%"></i></span><span>${dn}/${ms.length}</span></div>` : ''}
+      ${ms.map(m => `<div class="ms ${m.status}"><button type="button" class="dot ${m.status}" aria-label="${m.status === 'done' ? 'クリア済み' : m.status === 'doing' ? '取り組み中' : 'まだ'}" onclick="msCycle('${m.id}')"></button><div><span class="t">${esc(m.title)}</span>${m.clear_condition ? `<small>クリア条件: ${esc(m.clear_condition)}</small>` : ''}${m.status === 'done' && (m.evidence || m.done_at) ? `<small class="clr">${m.done_at ? fmtDate(m.done_at, false) + ' クリア' : 'クリア'}${m.evidence ? ' · ' + esc(m.evidence) : ''}</small>` : m.evidence ? `<small>${esc(m.evidence)}</small>` : ''}</div></div>`).join('')}
+      <button type="button" class="linkbtn" style="font-size:12.5px;margin-top:6px" onclick="addMs('${g.id}')">＋ 段階を追加</button>
+    </div>`; };
+  const ml = mats.filter(m => m.student_id === st.id).sort((a, b) => a.made_on < b.made_on ? 1 : a.made_on > b.made_on ? -1 : (a.created_at < b.created_at ? 1 : -1));
+  const mlv = matShowAll ? ml : ml.slice(0, 12);
+  $('#karte').innerHTML = `<div class="top"><div><h1>${esc(st.name)}${st.status !== 'active' ? ` <span class="chip ${st.status}" style="vertical-align:middle">${STL[st.status]}</span>` : ''}</h1><div class="meta">${[st.grade, st.campus, st.subjects].filter(Boolean).map(esc).join(' · ')}${notes.length ? `<span class="muted">授業ノート ${notes.length} 件 · 最終 ${fmtDate(notes[0].date)}</span>` : ''}</div></div><div class="acts">${st.drive_folder_url ? `<a class="btn flat" href="${esc(st.drive_folder_url)}" target="_blank" rel="noopener">教材フォルダ</a>` : ''}<button class="btn flat" onclick="openStu('${st.id}')">編集</button></div></div>
+    ${memo?.memo ? `<dl class="kv"><dt>メモ</dt><dd>${esc(memo.memo)}</dd></dl>` : ''}
+    <div class="ksec"><h2>目標と道のり <span class="n">${gl.length || ''}</span></h2><button class="linkbtn" onclick="addGoal('${st.id}')">＋ 目標を追加</button></div>
+    ${gl.length ? gl.map(goalCard).join('') : '<div class="empty" style="padding:8px 0">目標はまだありません。私に「' + esc(st.name) + 'の目標案を作って」と頼むと、案がここに入ります</div>'}
+    <div class="ksec"><h2>教材 <span class="n">${ml.length || ''}</span></h2></div>
+    <div>${ml.length ? mlv.map(m => `<div class="mat"><span class="d">${fmtShort(m.made_on)}</span><div>${m.url ? `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.title)}</a>` : esc(m.title)}${m.kind ? `<span class="chip k">${esc(m.kind)}</span>` : ''}${m.note ? `<small class="muted" style="display:block;font-size:12px">${esc(m.note)}</small>` : ''}</div>${m.used_on ? `<button type="button" class="chip ok" onclick="matUsed('${m.id}')">使用 ${fmtShort(m.used_on)}</button>` : `<button type="button" class="chip ghost" onclick="matUsed('${m.id}')">使った</button>`}</div>`).join('') + (ml.length > 12 ? `<button class="linkbtn" style="font-size:12.5px;margin-top:6px" onclick="matShowAll = !matShowAll; renderStudents()">${matShowAll ? '最近だけ表示' : `すべて表示（${ml.length}件）`}</button>` : '') : '<div class="empty" style="padding:8px 0">まだありません。私が教材を作ると、ここと教材フォルダに自動で入ります</div>'}</div>
+    <div class="ksec"><h2>授業ノート <span class="n">${notes.length || ''}</span></h2></div>
+    <div>${notes.length ? notes.slice(0, 10).map(n => `<div class="lesson"><div class="d">${fmtShort(n.date)}</div><div class="b">${esc(n.body)}${n.next_plan ? `<small>次回→ ${esc(n.next_plan)}</small>` : ''}</div></div>`).join('') : '<div class="empty" style="padding:8px 0">授業ノートは予定のコマから書けます</div>'}</div>`;
+}
+async function goalSet(id, status) { const g = goals.find(x => x.id === id); if (!g) return; const patch = { status, updated_at: new Date().toISOString() }; const { error } = await sb.from('student_goals').update(patch).eq('id', id); if (error) return fail(error); Object.assign(g, patch); renderStudents(); toast(status === 'active' ? '目標を確定しました' : status === 'done' ? '達成にしました' : '保存しました'); }
+async function goalType(id) { const g = goals.find(x => x.id === id); if (!g) return; const patch = { goal_type: GT_NEXT[g.goal_type] || 'reach', updated_at: new Date().toISOString() }; const { error } = await sb.from('student_goals').update(patch).eq('id', id); if (error) return fail(error); Object.assign(g, patch); renderStudents(); }
+async function goalMenu(id) {
+  const g = goals.find(x => x.id === id); if (!g) return;
+  const v = await ask({ title: '目標を編集', msg: '空にして OK で「取り下げ」。期限は「／」のあとに書けます（例: 小3の漢字を全部書ける／3月）', value: g.title + (g.deadline ? '／' + g.deadline : ''), ok: '保存' }); if (v === null) return;
+  if (!v.trim()) { if (!(await ask({ title: 'この目標を取り下げますか？', ok: '取り下げる', danger: true }))) return; return goalSet(id, 'dropped'); }
+  const [title, deadline = ''] = v.split(/[／\/]/).map(x => x.trim());
+  const patch = { title, deadline, updated_at: new Date().toISOString() }; const { error } = await sb.from('student_goals').update(patch).eq('id', id); if (error) return fail(error); Object.assign(g, patch); renderStudents(); toast('保存しました');
+}
+async function addGoal(sid) {
+  const v = await ask({ title: '目標を追加', msg: '「何を／いつまでに」。型はあとでチップを押して切り替えられます', value: '', ok: '追加' }); if (!v || !v.trim()) return;
+  const [title, deadline = ''] = v.split(/[／\/]/).map(x => x.trim());
+  const { data, error } = await sb.from('student_goals').insert({ student_id: sid, title, deadline, status: 'active' }).select().single(); if (error) return fail(error); goals.push(data); renderStudents();
+}
+async function addMs(gid) {
+  const v = await ask({ title: '段階を追加', msg: '「段階／クリア条件」（例: 1次関数／類題で8割）', value: '', ok: '追加' }); if (!v || !v.trim()) return;
+  const [title, clear_condition = ''] = v.split(/[／\/]/).map(x => x.trim());
+  const ord = Math.max(0, ...miles.filter(m => m.goal_id === gid).map(m => m.ord)) + 1;
+  const { data, error } = await sb.from('milestones').insert({ goal_id: gid, title, clear_condition, ord }).select().single(); if (error) return fail(error); miles.push(data); renderStudents();
+}
+async function msCycle(id) {
+  const m = miles.find(x => x.id === id); if (!m) return; const status = MS_NEXT[m.status] || 'todo';
+  const patch = { status, done_at: status === 'done' ? TODAY : null, updated_at: new Date().toISOString() };
+  const { error } = await sb.from('milestones').update(patch).eq('id', id); if (error) return fail(error); Object.assign(m, patch); renderStudents();
+  if (status === 'done') { const g = goals.find(x => x.id === m.goal_id); const all = miles.filter(x => x.goal_id === m.goal_id); toast(all.every(x => x.status === 'done') ? `「${g?.title || ''}」の道のりを全部クリア！` : 'クリアにしました', all.every(x => x.status === 'done') && g && g.status !== 'done' ? { label: '目標を達成にする', fn: () => goalSet(g.id, 'done') } : undefined); }
+}
+async function matUsed(id) {
+  const m = mats.find(x => x.id === id); if (!m) return; const patch = { used_on: m.used_on ? null : TODAY };
+  const { error } = await sb.from('materials').update(patch).eq('id', id); if (error) return fail(error); Object.assign(m, patch); renderStudents();
 }
 async function saveNext(id, v) { const st = students.find(s => s.id === id); if (!st || st.next_plan === v) return; const { error } = await sb.from('students').update({ next_plan: v }).eq('id', id); if (error) return fail(error); st.next_plan = v; toast('保存しました'); }
 let editingStu = null;
